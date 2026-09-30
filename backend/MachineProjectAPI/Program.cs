@@ -114,12 +114,17 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// Seed a default admin account (admin / admin123) if it doesn't exist yet
+// Apply any pending EF Core migrations, then seed a default admin account
+// (admin / admin123) if it doesn't exist yet. Migrate() creates the database
+// and all tables on first run and is a no-op if already up to date, so this
+// is safe to run on every startup on any machine.
 using (var scope = app.Services.CreateScope())
 {
     try
     {
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        db.Database.Migrate();
+
         if (!db.Users.Any(u => u.Username == "admin"))
         {
             var hasher = new PasswordHasher<User>();
@@ -131,7 +136,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        app.Logger.LogWarning(ex, "Could not seed the default admin user. Has the Users table been created yet (migration/SQL script)?");
+        app.Logger.LogError(ex, "Could not apply database migrations or seed the default admin user.");
     }
 }
 
