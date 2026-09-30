@@ -1,0 +1,64 @@
+.custom-cursor-dot,
+.custom-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 10000;
+  will-change: transform;
+}
+
+.custom-cursor-dot {
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  background: var(--accent-copper-bright);
+  border-radius: 50%;
+}
+
+.custom-cursor-ring {
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  border: 1.5px solid var(--border-copper);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.25s var(--ease-mechanical), height 0.25s var(--ease-mechanical),
+    margin 0.25s var(--ease-mechanical), background 0.25s ease;
+}
+
+.custom-cursor-ring--active {
+  width: 52px;
+  height: 52px;
+  margin: -26px 0 0 -26px;
+  background: rgba(217, 120, 36, 0.08);
+  border-color: var(--accent-copper);
+}
+
+.custom-cursor-ring__label {
+  position: absolute;
+  top: 100%;
+  margin-top: 8px;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--accent-copper-bright);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-copper);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+@media (pointer: coarse) {
+  .custom-cursor-dot,
+  .custom-cursor-ring {
+    display: none;
+  }
+}
+
+body:has(.custom-cursor-dot) {
+  cursor: none;
+}

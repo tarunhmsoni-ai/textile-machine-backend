@@ -1,0 +1,43 @@
+.gear-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--accent-copper, #d97824);
+}
+
+.gear-logo__svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+.gear-logo__svg--spin {
+  animation: gear-logo-spin 8s linear infinite;
+}
+
+@keyframes gear-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.gear-logo__wordmark {
+  font-family: var(--font-display, 'Oswald', sans-serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text-primary, #f5f2ea);
+  text-transform: uppercase;
+}
+
+.gear-logo__wordmark-accent {
+  color: var(--accent-copper, #d97824);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gear-logo__svg--spin {
+    animation: none;
+  }
+}
