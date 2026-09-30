@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import './MachineListings.css';
 import apiClient from '../../services/apiClient';
 import Navbar from '../../components/Navbar';
+import { SAMPLE_MACHINES } from '../../data/sampleMachines';
 
 const MachineListings = () => {
   const navigate = useNavigate();
@@ -41,20 +42,7 @@ const MachineListings = () => {
       setMachines(response.data || []);
     } catch (error) {
       console.error('Error fetching machines:', error);
-      setMachines([
-        {
-          id: 1,
-          type: 'knitting',
-          subtype: 'Warp Knitting (Tricot)',
-          brand: 'Karl Mayer',
-          model: 'HKS 3-M',
-          year: 2003,
-          location: 'On request',
-          price: 0,
-          photo: '/machines/karl-mayer-hks3m-plate.webp',
-          description: 'E28 gauge, 210" working width, needle number 51.50. Made in Germany.'
-        }
-      ]);
+      setMachines(SAMPLE_MACHINES);
     } finally {
       setLoading(false);
     }

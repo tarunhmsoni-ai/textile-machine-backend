@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './CustomCursor.css';
 
-const HOVER_SELECTOR = 'a, button, [role="button"], input, select, textarea, .machine-card, .type-card';
-const CARD_SELECTOR = '.machine-card, .type-card';
+const HOVER_SELECTOR = 'a, button, [role="button"], input, select, textarea, .machine-card, .ind-machine-card, .ind-category-card';
+const CARD_SELECTOR = '.machine-card, .ind-machine-card';
 
 export default function CustomCursor() {
   const [enabled, setEnabled] = useState(false);
