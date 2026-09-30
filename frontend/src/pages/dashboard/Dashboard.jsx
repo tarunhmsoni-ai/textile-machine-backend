@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/Dashboard.css';
+import GearLogo from '../../components/GearLogo';
 import {
   DashboardHome,
   Submissions,
@@ -136,7 +137,7 @@ export default function Dashboard({ onLogout }) {
       <div className="app">
         <aside className="side">
           <div className="brand">
-            <div className="logo">⚙️</div>
+            <div className="logo"><GearLogo size={26} /></div>
             <div>
               <b>MachTrack CRM</b>
               <small>by Simora Technologies</small>
@@ -175,9 +176,7 @@ export default function Dashboard({ onLogout }) {
                     padding: '8px 12px',
                     fontSize: 13,
                     borderRadius: 4,
-                    border: '1px solid #ddd',
                     cursor: 'pointer',
-                    backgroundColor: '#fff',
                   }}
                 >
                   <option value="modal">Modal</option>

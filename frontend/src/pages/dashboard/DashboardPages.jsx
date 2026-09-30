@@ -421,12 +421,13 @@ Thank you!`;
   return (
     <div className="card">
       <h3>📱 WhatsApp Message Template</h3>
-      <p style={{ fontSize: 12, color: '#999', marginBottom: 12 }}>
+      <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 12 }}>
         Copy this template and send it to sellers via WhatsApp. They can fill in their machine details and reply.
       </p>
       <div style={{
-        backgroundColor: '#f0f0f0',
-        border: '1px solid #ddd',
+        backgroundColor: 'var(--dark2)',
+        border: '1px solid var(--line)',
+        color: 'var(--text)',
         borderRadius: 6,
         padding: 12,
         fontFamily: 'monospace',
