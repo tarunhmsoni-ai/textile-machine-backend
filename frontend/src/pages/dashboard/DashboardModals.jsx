@@ -1,4 +1,14 @@
 import React, { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import './SellerFormWizard.css';
+
+const WIZARD_STEPS = [
+  { key: 'machine', label: 'MACHINE INFORMATION' },
+  { key: 'specs', label: 'SPECIFICATIONS' },
+  { key: 'media', label: 'PHOTOS / VIDEO' },
+  { key: 'seller', label: 'SELLER INFORMATION' },
+  { key: 'review', label: 'REVIEW & SUBMIT' },
+];
 
 const emptySellerForm = {
   sellerName: '',
@@ -23,6 +33,7 @@ const emptySellerForm = {
 function SellerFormContent({ form, setForm, onSubmit, onClose }) {
   const [extracting, setExtracting] = useState(false);
   const [extractionError, setExtractionError] = useState('');
+  const [step, setStep] = useState(0);
 
   const update = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
   const updateFile = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.files?.[0] || null }));
@@ -79,91 +90,182 @@ function SellerFormContent({ form, setForm, onSubmit, onClose }) {
   const handleSubmit = () => {
     onSubmit(form);
     setForm(emptySellerForm);
+    setStep(0);
+  };
+
+  const isLastStep = step === WIZARD_STEPS.length - 1;
+  const goNext = () => setStep((s) => Math.min(s + 1, WIZARD_STEPS.length - 1));
+  const goBack = () => setStep((s) => Math.max(s - 1, 0));
+
+  const reviewItems = [
+    ['Seller / Company', form.sellerName],
+    ['Mobile', form.mobile],
+    ['Brand', form.brand],
+    ['Type', form.type],
+    ['Gauge', form.gaugeFeinheit],
+    ['Working Width', form.workingWidthMm ? `${form.workingWidthMm}mm / ${form.workingWidthInch}"` : ''],
+    ['MC No.', form.mcNo],
+    ['Construction Year', form.constructionYear],
+    ['Made In', form.madeIn],
+    ['Location', form.location],
+    ['Expected Price', form.price],
+    ['Condition', form.condition],
+    ['Nameplate Photo', form.photosFile?.name],
+    ['Walkaround Video', form.videoFile?.name],
+  ];
+
+  const stepVariants = {
+    enter: { opacity: 0, x: 24 },
+    center: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -24 },
   };
 
   return (
-    <>
-      <div className="form">
-        <h3 style={{ marginTop: 0, marginBottom: 8, color: '#2a6b5c', fontSize: 14, fontWeight: 600 }}>Seller Information</h3>
-        <input placeholder="Seller / Company Name" value={form.sellerName} onChange={update('sellerName')} />
-        <input placeholder="Mobile Number" value={form.mobile} onChange={update('mobile')} />
-
-        <h3 style={{ marginTop: 12, marginBottom: 8, color: '#2a6b5c', fontSize: 14, fontWeight: 600 }}>Machine Nameplate Details</h3>
-        <input placeholder="Brand (e.g., Karl Mayer)" value={form.brand} onChange={update('brand')} />
-        <input placeholder="Machine Type (e.g., HKS 3-M)" value={form.type} onChange={update('type')} />
-        <input placeholder="Spacing / Teilung (mm, e.g., 0.9071)" value={form.spacingMm} onChange={update('spacingMm')} />
-        <input placeholder="Gauge / Feinheit (e.g., E 28)" value={form.gaugeFeinheit} onChange={update('gaugeFeinheit')} />
-        <input placeholder="Working Width (mm, e.g., 5334)" value={form.workingWidthMm} onChange={update('workingWidthMm')} />
-        <input placeholder="Working Width (inches, e.g., 210)" value={form.workingWidthInch} onChange={update('workingWidthInch')} />
-        <input placeholder="MC No. (e.g., 91794)" value={form.mcNo} onChange={update('mcNo')} />
-        <input placeholder="Construction Year (e.g., 2003)" value={form.constructionYear} onChange={update('constructionYear')} />
-        <input placeholder="Made In (country, e.g., Germany)" value={form.madeIn} onChange={update('madeIn')} />
-
-        <h3 style={{ marginTop: 12, marginBottom: 8, color: '#2a6b5c', fontSize: 14, fontWeight: 600 }}>Location & Pricing</h3>
-        <input placeholder="Machine Location" value={form.location} onChange={update('location')} />
-        <input placeholder="Expected Price" value={form.price} onChange={update('price')} />
-
-        <h3 style={{ marginTop: 12, marginBottom: 8, color: '#2a6b5c', fontSize: 14, fontWeight: 600 }}>Condition & Details</h3>
-        <select value={form.condition} onChange={update('condition')}>
-          <option>Running Condition</option>
-          <option>Not Running</option>
-          <option>Reconditioned</option>
-        </select>
-        <textarea
-          className="full"
-          rows="3"
-          placeholder="Additional notes, accessories, and condition details"
-          value={form.spec}
-          onChange={update('spec')}
-        />
-
-        <h3 style={{ marginTop: 12, marginBottom: 8, color: '#2a6b5c', fontSize: 14, fontWeight: 600 }}>Media Upload</h3>
-        <div style={{ display: 'flex', gap: 10 }}>
-          <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontSize: 12, marginBottom: 4, color: '#666' }}>Nameplate Photo</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={updateFile('photosFile')}
-              style={{ fontSize: 12, width: '100%' }}
-            />
-            {form.photosFile && <div style={{ fontSize: 11, color: '#2a6b5c', marginTop: 4 }}>✓ {form.photosFile.name}</div>}
-          </div>
-          <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontSize: 12, marginBottom: 4, color: '#666' }}>Walkaround Video</label>
-            <input
-              type="file"
-              accept="video/*"
-              onChange={updateFile('videoFile')}
-              style={{ fontSize: 12, width: '100%' }}
-            />
-            {form.videoFile && <div style={{ fontSize: 11, color: '#2a6b5c', marginTop: 4 }}>✓ {form.videoFile.name}</div>}
-          </div>
-        </div>
-
-        {form.photosFile && (
-          <>
-            <button
-              className="btn"
-              onClick={handleExtractFromImage}
-              disabled={extracting}
-              style={{ marginTop: 10, width: '100%', opacity: extracting ? 0.6 : 1 }}
+    <div className="ind-wizard">
+      {/* Progress Indicator */}
+      <div className="ind-wizard__progress">
+        {WIZARD_STEPS.map((s, i) => (
+          <React.Fragment key={s.key}>
+            <div
+              className={`ind-wizard__progress-step ${
+                i === step ? 'ind-wizard__progress-step--active' : ''
+              } ${i < step ? 'ind-wizard__progress-step--done' : ''}`}
             >
-              {extracting ? '🔍 Extracting...' : '🔍 Auto-Extract from Nameplate Photo'}
-            </button>
-            {extractionError && (
-              <div style={{ fontSize: 12, color: '#d32f2f', marginTop: 8, padding: 8, backgroundColor: '#ffebee', borderRadius: 4 }}>
-                ⚠️ {extractionError}
-              </div>
+              <span className="ind-wizard__progress-num">{i < step ? '✓' : String(i + 1).padStart(2, '0')}</span>
+            </div>
+            {i < WIZARD_STEPS.length - 1 && (
+              <div className={`ind-wizard__progress-line ${i < step ? 'ind-wizard__progress-line--done' : ''}`} />
             )}
-          </>
+          </React.Fragment>
+        ))}
+      </div>
+
+      <p className="ind-wizard__step-title">
+        STEP {String(step + 1).padStart(2, '0')} — {WIZARD_STEPS[step].label}
+      </p>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={step}
+          variants={stepVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+        >
+          {/* Step 1: Machine Information */}
+          {step === 0 && (
+            <div className="ind-wizard__fields">
+              <input placeholder="Brand (e.g., Karl Mayer)" value={form.brand} onChange={update('brand')} />
+              <input placeholder="Machine Type / Model (e.g., HKS 3-M)" value={form.type} onChange={update('type')} />
+            </div>
+          )}
+
+          {/* Step 2: Specifications */}
+          {step === 1 && (
+            <div className="ind-wizard__fields">
+              <div className="ind-wizard__field-row">
+                <input placeholder="Spacing / Teilung (mm)" value={form.spacingMm} onChange={update('spacingMm')} />
+                <input placeholder="Gauge / Feinheit (e.g., E 28)" value={form.gaugeFeinheit} onChange={update('gaugeFeinheit')} />
+              </div>
+              <div className="ind-wizard__field-row">
+                <input placeholder="Working Width (mm)" value={form.workingWidthMm} onChange={update('workingWidthMm')} />
+                <input placeholder="Working Width (inches)" value={form.workingWidthInch} onChange={update('workingWidthInch')} />
+              </div>
+              <div className="ind-wizard__field-row">
+                <input placeholder="MC No." value={form.mcNo} onChange={update('mcNo')} />
+                <input placeholder="Construction Year" value={form.constructionYear} onChange={update('constructionYear')} />
+              </div>
+              <input placeholder="Made In (country)" value={form.madeIn} onChange={update('madeIn')} />
+              <select value={form.condition} onChange={update('condition')}>
+                <option>Running Condition</option>
+                <option>Not Running</option>
+                <option>Reconditioned</option>
+              </select>
+              <textarea
+                rows="3"
+                placeholder="Additional notes, accessories, and condition details"
+                value={form.spec}
+                onChange={update('spec')}
+              />
+            </div>
+          )}
+
+          {/* Step 3: Photos / Video */}
+          {step === 2 && (
+            <div className="ind-wizard__fields">
+              <div className="ind-wizard__upload">
+                <label>Nameplate Photo</label>
+                <input type="file" accept="image/*" onChange={updateFile('photosFile')} />
+                {form.photosFile && <p className="ind-wizard__upload-confirm">✓ {form.photosFile.name}</p>}
+              </div>
+              <div className="ind-wizard__upload">
+                <label>Walkaround Video</label>
+                <input type="file" accept="video/*" onChange={updateFile('videoFile')} />
+                {form.videoFile && <p className="ind-wizard__upload-confirm">✓ {form.videoFile.name}</p>}
+              </div>
+
+              {form.photosFile && (
+                <>
+                  <button
+                    type="button"
+                    className="ind-wizard__extract-btn"
+                    onClick={handleExtractFromImage}
+                    disabled={extracting}
+                  >
+                    {extracting ? '🔍 Extracting...' : '🔍 Auto-Extract from Nameplate Photo'}
+                  </button>
+                  {extractionError && <div className="ind-wizard__error">⚠ {extractionError}</div>}
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Step 4: Seller Information */}
+          {step === 3 && (
+            <div className="ind-wizard__fields">
+              <input placeholder="Seller / Company Name" value={form.sellerName} onChange={update('sellerName')} />
+              <input placeholder="Mobile Number" value={form.mobile} onChange={update('mobile')} />
+              <input placeholder="Machine Location" value={form.location} onChange={update('location')} />
+              <input placeholder="Expected Price" value={form.price} onChange={update('price')} />
+            </div>
+          )}
+
+          {/* Step 5: Review & Submit */}
+          {step === 4 && (
+            <dl className="ind-wizard__review">
+              {reviewItems.map(([label, value]) => (
+                <div className="ind-wizard__review-item" key={label}>
+                  <dt>{label}</dt>
+                  <dd>{value || '—'}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </motion.div>
+      </AnimatePresence>
+
+      <div className="ind-wizard__actions">
+        {step === 0 ? (
+          <button className="ind-wizard__nav-btn ind-wizard__nav-btn--back" onClick={onClose}>
+            Cancel
+          </button>
+        ) : (
+          <button className="ind-wizard__nav-btn ind-wizard__nav-btn--back" onClick={goBack}>
+            ← Back
+          </button>
+        )}
+        {isLastStep ? (
+          <button className="ind-wizard__nav-btn ind-wizard__nav-btn--next" onClick={handleSubmit}>
+            Submit Machine
+          </button>
+        ) : (
+          <button className="ind-wizard__nav-btn ind-wizard__nav-btn--next" onClick={goNext}>
+            Next →
+          </button>
         )}
       </div>
-      <div className="actions">
-        <button className="btn" onClick={onClose}>Cancel</button>
-        <button className="btn primary" onClick={handleSubmit}>Submit Machine</button>
-      </div>
-    </>
+    </div>
   );
 }
 

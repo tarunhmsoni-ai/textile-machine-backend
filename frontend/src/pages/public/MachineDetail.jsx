@@ -48,6 +48,7 @@ const MachineDetail = () => {
 
   const [activeMedia, setActiveMedia] = useState('video');
   const [activePhoto, setActivePhoto] = useState(0);
+  const [contactSent, setContactSent] = useState(false);
 
   const handleContactFormChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
@@ -55,10 +56,13 @@ const MachineDetail = () => {
 
   const handleContactSubmit = (e) => {
     e.preventDefault();
-    // In production, this would send the form to the backend
-    alert('Thank you for your interest! We will contact you soon.');
-    setShowContactForm(false);
+    // TODO: Send enquiry to backend
+    setContactSent(true);
     setFormData({ name: '', email: '', phone: '', message: '' });
+    setTimeout(() => {
+      setContactSent(false);
+      setShowContactForm(false);
+    }, 2500);
   };
 
   const whatsappMessage = `Hi, I'm interested in the ${machine.brand} ${machine.model} machine listed on your platform. Could you please provide more details?`;
@@ -197,37 +201,41 @@ const MachineDetail = () => {
 
             {/* Contact Form */}
             {showContactForm && (
-              <form className="inline-contact-form" onSubmit={handleContactSubmit}>
-                <input
-                  type="text"
-                  placeholder="Your Name"
-                  value={formData.name}
-                  onChange={(e) => handleContactFormChange('name', e.target.value)}
-                  required
-                />
-                <input
-                  type="email"
-                  placeholder="Your Email"
-                  value={formData.email}
-                  onChange={(e) => handleContactFormChange('email', e.target.value)}
-                  required
-                />
-                <input
-                  type="tel"
-                  placeholder="Your Phone"
-                  value={formData.phone}
-                  onChange={(e) => handleContactFormChange('phone', e.target.value)}
-                  required
-                />
-                <textarea
-                  placeholder="Your Message"
-                  value={formData.message}
-                  onChange={(e) => handleContactFormChange('message', e.target.value)}
-                  rows="3"
-                  required
-                ></textarea>
-                <button type="submit" className="submit-form-btn">Send Message</button>
-              </form>
+              contactSent ? (
+                <p className="inline-contact-form__success">✓ Sent — the seller will be in touch shortly.</p>
+              ) : (
+                <form className="inline-contact-form" onSubmit={handleContactSubmit}>
+                  <input
+                    type="text"
+                    placeholder="Your Name"
+                    value={formData.name}
+                    onChange={(e) => handleContactFormChange('name', e.target.value)}
+                    required
+                  />
+                  <input
+                    type="email"
+                    placeholder="Your Email"
+                    value={formData.email}
+                    onChange={(e) => handleContactFormChange('email', e.target.value)}
+                    required
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Your Phone"
+                    value={formData.phone}
+                    onChange={(e) => handleContactFormChange('phone', e.target.value)}
+                    required
+                  />
+                  <textarea
+                    placeholder="Your Message"
+                    value={formData.message}
+                    onChange={(e) => handleContactFormChange('message', e.target.value)}
+                    rows="3"
+                    required
+                  ></textarea>
+                  <button type="submit" className="submit-form-btn">Send Message</button>
+                </form>
+              )
             )}
           </div>
 
