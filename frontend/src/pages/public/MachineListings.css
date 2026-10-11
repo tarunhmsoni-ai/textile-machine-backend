@@ -8,11 +8,17 @@
 .listings-header {
   background: var(--bg-secondary);
   padding: 1.5rem 2rem;
-  padding-top: calc(1.5rem + 72px);
   border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.listings-header__top {
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .machine-listings .back-btn {
@@ -22,7 +28,7 @@
   font-size: 0.8rem;
   letter-spacing: 0.06em;
   cursor: pointer;
-  color: var(--accent-copper-bright);
+  color: var(--accent-red);
 }
 
 .listings-header h1 {
@@ -41,6 +47,14 @@
   display: grid;
   grid-template-columns: 260px 1fr;
   gap: 2rem;
+}
+
+/* Sidebar column (categories + filters) */
+.listings-sidebar-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: fit-content;
 }
 
 /* Filters Sidebar */
@@ -90,7 +104,7 @@
 .filter-group input:focus {
   outline: none;
   border-color: var(--accent-copper);
-  box-shadow: 0 0 0 3px rgba(217, 120, 36, 0.15);
+  box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.15);
 }
 
 .price-inputs {
@@ -124,7 +138,7 @@
 
 .clear-filters-btn:hover {
   border-color: var(--accent-copper);
-  color: var(--accent-copper-bright);
+  color: var(--accent-red);
 }
 
 /* Machines Grid */
@@ -145,19 +159,18 @@
 }
 
 .machines-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
 }
 
 .machine-card {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 1.5rem;
-  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
   background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
+  overflow: hidden;
   transition: transform var(--dur-base) var(--ease-mechanical), border-color var(--dur-base) ease,
     box-shadow var(--dur-base) ease;
 }
@@ -169,46 +182,75 @@
 }
 
 .machine-image {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
 }
 
-.image-placeholder {
+.machine-card__image-wrap {
   width: 100%;
-  aspect-ratio: 1;
+  aspect-ratio: 4 / 3;
   background: #000;
-  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 
-.image-placeholder img {
+.machine-card__image-wrap img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+.machine-image__ribbon {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.75rem;
+}
+
+.machine-image__share {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 8, 8, 0.65);
+  border: 1px solid var(--border-subtle);
+  border-radius: 50%;
+  color: var(--text-primary);
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease;
+}
+
+.machine-image__share:hover {
+  border-color: var(--accent-copper);
+  color: var(--accent-red);
+}
+
 .machine-info {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  flex: 1;
+  padding: 1.25rem;
 }
 
 .machine-info h3 {
   margin: 0 0 0.5rem 0;
   font-family: var(--font-display);
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   letter-spacing: 0.01em;
   color: var(--text-primary);
 }
 
 .specs {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
   margin-bottom: 0.5rem;
+  align-items: center;
 }
 
-.type-badge {
+.machine-card__badge {
   background: var(--accent-copper);
   color: #080808;
   padding: 0.25rem 0.75rem;
@@ -229,27 +271,31 @@
 
 .location {
   color: var(--text-muted);
-  margin: 0.4rem 0;
-  font-size: 0.9rem;
+  margin: 0;
+  font-size: 0.85rem;
 }
 
-.description {
+.machine-card__description {
   color: var(--text-muted);
   margin: 0.4rem 0;
   line-height: 1.5;
   font-size: 0.9rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .price-section {
   margin: 0.75rem 0;
 }
 
-.price-text {
+.machine-card__price-text {
   margin: 0;
   font-family: var(--font-display);
   font-size: 0.85rem;
   letter-spacing: 0.03em;
-  color: var(--accent-copper-bright);
+  color: var(--accent-red);
 }
 
 .action-buttons {
@@ -332,13 +378,8 @@
 }
 
 @media (max-width: 768px) {
-  .machine-card {
+  .machines-list {
     grid-template-columns: 1fr;
-  }
-
-  .image-placeholder {
-    max-width: 320px;
-    margin: 0 auto;
   }
 
   .listings-container {

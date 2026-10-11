@@ -1,6 +1,19 @@
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:63080/api';
+const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
+
+/**
+ * Uploaded machine photos/videos are served from the backend's own origin
+ * (e.g. /uploads/photos/xxx.jpg), not the frontend's. Local sample assets
+ * (/machines/...) and already-absolute URLs pass through unchanged.
+ */
+export function resolveMediaUrl(path) {
+  if (!path) return path;
+  if (/^https?:\/\//i.test(path)) return path;
+  if (path.startsWith('/uploads/')) return `${API_ORIGIN}${path}`;
+  return path;
+}
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,

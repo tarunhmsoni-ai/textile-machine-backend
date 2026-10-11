@@ -6,7 +6,7 @@
 }
 
 .ind-accent {
-  color: var(--accent-copper-bright);
+  color: var(--accent-red);
 }
 
 .ind-section-title {
@@ -59,8 +59,8 @@
 .ind-hero__grid {
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
   background-size: 56px 56px;
   mask-image: radial-gradient(circle at 50% 40%, black 0%, transparent 75%);
 }
@@ -68,7 +68,7 @@
 .ind-hero__glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 35%, rgba(217, 120, 36, 0.16), transparent 60%);
+  background: radial-gradient(circle at 50% 35%, rgba(255, 204, 0, 0.16), transparent 60%);
 }
 
 .ind-hero__gear {
@@ -191,7 +191,52 @@
 .ind-search__select:focus {
   outline: none;
   border-color: var(--accent-copper);
-  box-shadow: 0 0 0 3px rgba(217, 120, 36, 0.15);
+  box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.15);
+}
+
+/* Compact top search bar — sits directly under the category bar */
+.ind-search--top {
+  padding: 1.25rem 2rem;
+  border-top: none;
+}
+
+.ind-search--top .ind-search__inner {
+  max-width: 1300px;
+}
+
+.ind-search--top .ind-search__form {
+  margin-top: 0;
+  flex-wrap: nowrap;
+}
+
+.ind-search--top .ind-search__select {
+  flex: 0 1 170px;
+}
+
+.ind-search--top .ind-search__input {
+  flex: 1 1 auto;
+}
+
+.ind-search__buy-btn,
+.ind-search__sell-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .ind-search--top .ind-search__form {
+    flex-wrap: wrap;
+  }
+
+  .ind-search--top .ind-search__select,
+  .ind-search--top .ind-search__input {
+    flex: 1 1 100%;
+  }
+
+  .ind-search__buy-btn,
+  .ind-search__sell-btn {
+    flex: 1 1 auto;
+  }
 }
 
 /* ================= Categories ================= */
@@ -253,7 +298,7 @@
 
 .ind-category-card__subtypes li::before {
   content: '— ';
-  color: var(--accent-copper);
+  color: var(--accent-red);
 }
 
 .ind-category-card__arrow {
@@ -261,12 +306,87 @@
   font-family: var(--font-display);
   font-size: 0.75rem;
   letter-spacing: 0.08em;
-  color: var(--accent-copper-bright);
+  color: var(--accent-red);
   transition: transform var(--dur-fast) ease;
 }
 
 .ind-category-card:hover .ind-category-card__arrow {
   transform: translateX(6px);
+}
+
+/* ================= Buy / Sell / Contact ================= */
+.ind-cta-trio {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 2rem 5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.75rem;
+}
+
+.ind-cta-card {
+  background: var(--bg-tertiary);
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 2.25rem;
+  text-align: center;
+  transition: transform var(--dur-base) var(--ease-mechanical), box-shadow var(--dur-base) ease;
+}
+
+.ind-cta-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-elevated);
+}
+
+.ind-cta-card--yellow {
+  background: var(--accent-copper);
+}
+
+.ind-cta-card--red {
+  background: var(--accent-red);
+}
+
+.ind-cta-card--grey {
+  background: #848484;
+}
+
+.ind-cta-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0 0 0.75rem;
+  color: var(--text-primary);
+}
+
+.ind-cta-card--red h3,
+.ind-cta-card--red p,
+.ind-cta-card--grey h3,
+.ind-cta-card--grey p {
+  color: var(--text-on-dark);
+}
+
+.ind-cta-card p {
+  color: var(--text-primary);
+  opacity: 0.85;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+}
+
+.ind-cta-card .ind-cta-card__btn {
+  width: 100%;
+  justify-content: center;
+  background: var(--bg-secondary);
+  border-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.ind-cta-card .ind-cta-card__btn:hover {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-secondary);
 }
 
 /* ================= Featured Machinery ================= */
@@ -301,6 +421,7 @@
 }
 
 .ind-machine-card__image {
+  position: relative;
   aspect-ratio: 4 / 3;
   overflow: hidden;
   background: #000;
@@ -315,6 +436,42 @@
 
 .ind-machine-card:hover .ind-machine-card__image img {
   transform: scale(1.06);
+}
+
+.ind-machine-card__badge {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  background: var(--accent-copper);
+  color: #080808;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
+.ind-machine-card__share {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 8, 8, 0.65);
+  border: 1px solid var(--border-subtle);
+  border-radius: 50%;
+  color: var(--text-primary);
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease;
+}
+
+.ind-machine-card__share:hover {
+  border-color: var(--accent-copper);
+  color: var(--accent-red);
 }
 
 .ind-machine-card__body {
@@ -337,7 +494,7 @@
 
 .ind-machine-card__price {
   font-family: var(--font-display);
-  color: var(--accent-copper-bright);
+  color: var(--accent-red);
   font-size: 0.85rem;
   letter-spacing: 0.06em;
   margin: 0 0 1.25rem;
@@ -382,7 +539,7 @@
   border-radius: 50%;
   background: var(--bg-primary);
   border: 2px solid var(--accent-copper);
-  color: var(--accent-copper-bright);
+  color: var(--accent-red);
   font-family: var(--font-display);
   font-size: 0.8rem;
   margin-bottom: 1rem;
@@ -451,7 +608,7 @@
   content: '✓';
   position: absolute;
   left: 0;
-  color: var(--accent-copper-bright);
+  color: var(--accent-red);
 }
 
 /* ================= Sell ================= */
@@ -528,11 +685,11 @@
 .ind-newsletter__form input:focus {
   outline: none;
   border-color: var(--accent-copper);
-  box-shadow: 0 0 0 3px rgba(217, 120, 36, 0.15);
+  box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.15);
 }
 
 .ind-newsletter__success {
-  color: var(--accent-copper-bright);
+  color: var(--accent-red);
   font-family: var(--font-display);
   letter-spacing: 0.03em;
 }
@@ -568,14 +725,14 @@
 .ind-contact__form textarea:focus {
   outline: none;
   border-color: var(--accent-copper);
-  box-shadow: 0 0 0 3px rgba(217, 120, 36, 0.15);
+  box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.15);
 }
 
 /* ================= Footer ================= */
 .ind-footer {
   position: relative;
-  background: var(--bg-secondary);
-  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-dark);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding: 4rem 2rem 1.5rem;
   overflow: hidden;
 }
@@ -585,7 +742,7 @@
   right: -80px;
   bottom: -80px;
   color: var(--accent-copper);
-  opacity: 0.06;
+  opacity: 0.1;
   pointer-events: none;
 }
 
@@ -600,7 +757,7 @@
 }
 
 .ind-footer__brand p {
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.65);
   font-size: 0.9rem;
   line-height: 1.6;
   margin-top: 1rem;
@@ -612,7 +769,7 @@
   font-size: 0.85rem;
   letter-spacing: 0.08em;
   margin: 0 0 1rem;
-  color: var(--text-primary);
+  color: var(--text-on-dark);
 }
 
 .ind-footer__col button,
@@ -620,7 +777,7 @@
   display: block;
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.65);
   font-size: 0.9rem;
   text-align: left;
   padding: 0.35rem 0;
@@ -629,7 +786,7 @@
 }
 
 .ind-footer__col button:hover {
-  color: var(--accent-copper-bright);
+  color: var(--accent-copper);
 }
 
 .ind-footer__bottom {
@@ -638,9 +795,9 @@
   max-width: 1300px;
   margin: 3rem auto 0;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.5);
   font-size: 0.8rem;
 }
 
@@ -688,4 +845,8 @@
   .ind-search__input--location {
     flex: 1 1 auto;
   }
+}
+
+.ind-footer__brand .gear-logo__wordmark {
+  color: var(--text-on-dark);
 }

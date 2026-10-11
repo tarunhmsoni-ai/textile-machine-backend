@@ -31,12 +31,12 @@ export default function GearLogo({ size = 40, animate = false, showWordmark = fa
           strokeWidth="2.5"
           fill="none"
         />
-        <circle cx="50" cy="50" r="13" stroke="currentColor" strokeWidth="2.5" fill="var(--bg-primary, #080808)" />
+        <circle cx="50" cy="50" r="13" stroke="currentColor" strokeWidth="2.5" fill="var(--bg-dark, #333333)" />
         <circle cx="50" cy="50" r="4" fill="currentColor" />
       </svg>
       {showWordmark && (
         <span className="gear-logo__wordmark">
-          IRON<span className="gear-logo__wordmark-accent">MARKET</span>
+          TEXTILE <span className="gear-logo__wordmark-accent">MACHINE</span>
         </span>
       )}
     </span>

@@ -4,17 +4,13 @@
   left: 0;
   right: 0;
   z-index: 500;
-  background: transparent;
+  background: var(--bg-dark);
   border-bottom: 1px solid transparent;
-  transition: background var(--dur-base) var(--ease-mechanical),
-    border-color var(--dur-base) var(--ease-mechanical), backdrop-filter var(--dur-base) var(--ease-mechanical);
+  transition: box-shadow var(--dur-base) var(--ease-mechanical);
 }
 
 .ind-navbar--scrolled {
-  background: var(--glass-bg);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom-color: var(--border-subtle);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
 }
 
 .ind-navbar__inner {
@@ -32,6 +28,7 @@
   border: none;
   cursor: pointer;
   padding: 0;
+  color: var(--text-on-dark);
 }
 
 .ind-navbar__links {
@@ -46,10 +43,10 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--text-primary);
+  color: var(--text-on-dark);
   font-family: var(--font-display);
   font-size: 0.78rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   padding: 0.4rem 0;
 }
 
@@ -60,7 +57,7 @@
   bottom: -2px;
   width: 0;
   height: 2px;
-  background: var(--accent-copper-bright);
+  background: var(--accent-copper);
   transition: width var(--dur-fast) var(--ease-mechanical);
 }
 
@@ -76,32 +73,32 @@
 
 .ind-navbar__login {
   background: none;
-  border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--text-on-dark);
   font-family: var(--font-display);
   font-size: 0.75rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   padding: 0.6rem 1.2rem;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
   cursor: pointer;
   transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease;
 }
 
 .ind-navbar__login:hover {
   border-color: var(--accent-copper);
-  color: var(--accent-copper-bright);
+  color: var(--accent-copper);
 }
 
 .ind-navbar__cta {
   background: var(--accent-copper);
   border: none;
-  color: #080808;
+  color: var(--text-primary);
   font-family: var(--font-display);
   font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   padding: 0.65rem 1.3rem;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
   cursor: pointer;
   transition: background var(--dur-fast) ease, transform var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
 }
@@ -125,7 +122,7 @@
 .ind-navbar__burger span {
   width: 22px;
   height: 2px;
-  background: var(--text-primary);
+  background: var(--text-on-dark);
   transition: transform var(--dur-fast) ease, opacity var(--dur-fast) ease;
 }
 
@@ -142,7 +139,7 @@
 .ind-navbar__mobile {
   max-height: 0;
   overflow: hidden;
-  background: var(--bg-secondary);
+  background: var(--bg-dark);
   border-top: 1px solid transparent;
   transition: max-height var(--dur-base) var(--ease-mechanical), border-color var(--dur-base) ease;
   display: flex;
@@ -151,24 +148,24 @@
 
 .ind-navbar__mobile--open {
   max-height: 400px;
-  border-top-color: var(--border-subtle);
+  border-top-color: rgba(255, 255, 255, 0.12);
 }
 
 .ind-navbar__mobile-link {
   background: none;
   border: none;
-  border-bottom: 1px solid var(--border-subtle);
-  color: var(--text-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-on-dark);
   font-family: var(--font-display);
   font-size: 0.85rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-align: left;
   padding: 1rem 2rem;
   cursor: pointer;
 }
 
 .ind-navbar__mobile-link--accent {
-  color: var(--accent-copper-bright);
+  color: var(--accent-copper);
 }
 
 @media (max-width: 900px) {
@@ -179,4 +176,8 @@
   .ind-navbar__burger {
     display: flex;
   }
+}
+
+.ind-navbar__brand .gear-logo__wordmark {
+  color: var(--text-on-dark);
 }

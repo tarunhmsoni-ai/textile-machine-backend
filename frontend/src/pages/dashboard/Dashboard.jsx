@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/Dashboard.css';
 import GearLogo from '../../components/GearLogo';
+import apiClient, { resolveMediaUrl } from '../../services/apiClient';
 import {
   DashboardHome,
   Submissions,
@@ -59,6 +60,49 @@ export default function Dashboard({ onLogout }) {
   };
 
   useEffect(() => () => clearTimeout(toastTimer.current), []);
+
+  useEffect(() => {
+    let cancelled = false;
+    apiClient
+      .get('/machines/admin/all')
+      .then((res) => {
+        if (cancelled) return;
+        const real = (res.data || []).map((m) => ({
+          id: m.id,
+          brand: m.brand,
+          type: `${m.type} · ${m.subtype}`,
+          mcNo: '—',
+          constructionYear: String(m.year),
+          seller: m.seller?.name || '—',
+          location: m.location,
+          price: m.price ? `₹${m.price}` : 'On request',
+          status: m.status === 'Live' ? 'Available' : m.status,
+          media: m.videoUrl ? 'Photos + Video' : m.photos?.length ? 'Photos' : '—',
+          photos: (m.photos || []).map(resolveMediaUrl),
+        }));
+        if (real.length > 0) {
+          setMachines(real);
+          setMachineTotal(real.length);
+        }
+      })
+      .catch(() => {
+        /* backend unreachable — keep the sample inventory rows */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleDeleteMachine = async (id) => {
+    try {
+      await apiClient.delete(`/machines/${id}`);
+      setMachines((prev) => prev.filter((m) => m.id !== id));
+      setMachineTotal((n) => Math.max(0, n - 1));
+      showToast('Machine removed from inventory.');
+    } catch {
+      showToast('Could not remove this machine — please try again.');
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
@@ -201,7 +245,7 @@ export default function Dashboard({ onLogout }) {
           {activePage === 'submissions' && (
             <Submissions submissions={submissions} onReview={setReviewSubmission} />
           )}
-          {activePage === 'machines' && <Machines machines={machines} />}
+          {activePage === 'machines' && <Machines machines={machines} onDelete={handleDeleteMachine} />}
           {activePage === 'inquiries' && (
             <Inquiries
               onFindMatch={() => setActivePage('matching')}

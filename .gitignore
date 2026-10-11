@@ -5,3 +5,10 @@ obj/
 .vs/
 *.vsidx
 *.user
+
+# Uploaded machine photos/videos — runtime data, not source
+backend/MachineProjectAPI/wwwroot/uploads/*
+!backend/MachineProjectAPI/wwwroot/uploads/**/.gitkeep
+
+# Local IDE publish profiles
+backend/MachineProjectAPI/Properties/PublishProfiles/

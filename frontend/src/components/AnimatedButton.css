@@ -4,10 +4,10 @@
   gap: 0.6rem;
   font-family: var(--font-display);
   font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   padding: 0.85rem 1.8rem;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
   cursor: pointer;
   border: 1px solid transparent;
   transition: background var(--dur-fast) ease, box-shadow var(--dur-fast) ease, border-color var(--dur-fast) ease;
@@ -20,7 +20,7 @@
 
 .ind-btn--primary {
   background: var(--accent-copper);
-  color: #080808;
+  color: var(--text-primary);
 }
 
 .ind-btn--primary:hover:not(:disabled) {
@@ -28,15 +28,26 @@
   box-shadow: var(--shadow-copper-glow);
 }
 
+.ind-btn--secondary {
+  background: var(--accent-red);
+  color: var(--text-on-dark);
+}
+
+.ind-btn--secondary:hover:not(:disabled) {
+  background: #e23333;
+  box-shadow: var(--shadow-copper-glow);
+}
+
 .ind-btn--ghost {
-  background: transparent;
+  background: var(--bg-secondary);
   border-color: var(--border-subtle);
   color: var(--text-primary);
 }
 
 .ind-btn--ghost:hover:not(:disabled) {
   border-color: var(--accent-copper);
-  color: var(--accent-copper-bright);
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
 }
 
 .ind-btn__icon {

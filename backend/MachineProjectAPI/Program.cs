@@ -59,7 +59,7 @@ builder.Services.AddCors(options =>
 
 // Add Database Context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add Auth services
 builder.Services.AddScoped<TokenService>();
@@ -109,6 +109,7 @@ else
     app.UseHttpsRedirection();
 }
 
+app.UseStaticFiles(); // serves wwwroot/uploads/* (machine photos & videos)
 app.UseCors("AllowReactApp");
 app.UseAuthentication();
 app.UseAuthorization();

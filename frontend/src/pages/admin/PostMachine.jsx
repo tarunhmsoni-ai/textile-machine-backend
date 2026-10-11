@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import apiClient from '../../services/apiClient';
 import './PostMachine.css';
 
 const PostMachine = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [createdId, setCreatedId] = useState(null);
   const [error, setError] = useState('');
   const [uploadedPhotos, setUploadedPhotos] = useState([]);
   const [uploadedVideo, setUploadedVideo] = useState(null);
@@ -59,18 +61,19 @@ const PostMachine = () => {
       return;
     }
 
-    // Simulate file upload (in production, send to backend)
     files.forEach((file, index) => {
       const reader = new FileReader();
       reader.onload = (event) => {
         setUploadedPhotos(prev => [...prev, {
           id: Date.now() + index,
           name: file.name,
-          src: event.target.result
+          src: event.target.result,
+          file,
         }]);
       };
       reader.readAsDataURL(file);
     });
+    e.target.value = '';
   };
 
   const handleVideoUpload = (e) => {
@@ -81,10 +84,12 @@ const PostMachine = () => {
     reader.onload = (event) => {
       setUploadedVideo({
         name: file.name,
-        src: event.target.result
+        src: event.target.result,
+        file,
       });
     };
     reader.readAsDataURL(file);
+    e.target.value = '';
   };
 
   const removePhoto = (id) => {
@@ -110,50 +115,55 @@ const PostMachine = () => {
         throw new Error('Please upload at least one photo');
       }
 
-      // Prepare machine data
-      const machineData = {
-        ...formData,
-        photos: uploadedPhotos.map(p => p.src),
-        videoUrl: uploadedVideo?.src,
-        specifications: JSON.stringify(formData.specifications)
-      };
+      const fd = new FormData();
+      fd.append('Type', formData.type);
+      fd.append('SubType', formData.subType);
+      fd.append('Brand', formData.brand);
+      fd.append('Model', formData.model);
+      fd.append('Year', formData.year);
+      fd.append('Location', formData.location);
+      fd.append('Description', formData.description);
+      fd.append('Condition', formData.specifications.condition);
+      fd.append('SellerName', formData.sellerName);
+      fd.append('SellerPhone', formData.sellerPhone);
+      fd.append('SellerEmail', formData.sellerEmail);
+      fd.append('SellerWhatsApp', formData.sellerWhatsApp);
+      fd.append('SpecificationsJson', JSON.stringify(formData.specifications));
+      uploadedPhotos.forEach((p) => fd.append('Photos', p.file));
+      if (uploadedVideo) fd.append('Video', uploadedVideo.file);
 
-      // TODO: Send to backend API
-      // const response = await apiClient.post('/api/machines', machineData);
-
-      console.log('Machine data:', machineData);
+      const response = await apiClient.post('/machines', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
 
       setSuccess(true);
-      setTimeout(() => {
-        setSuccess(false);
-        // Reset form
-        setFormData({
-          type: '',
-          subType: '',
-          brand: '',
-          model: '',
-          year: new Date().getFullYear(),
-          location: '',
-          description: '',
-          sellerName: '',
-          sellerPhone: '',
-          sellerEmail: '',
-          sellerWhatsApp: '',
-          specifications: {
-            gauge: '',
-            width: '',
-            needleNumber: '',
-            feeders: '',
-            rpm: '',
-            powerRating: '',
-            condition: 'Good'
-          }
-        });
-        setUploadedPhotos([]);
-        setUploadedVideo(null);
-      }, 2000);
+      setCreatedId(response.data?.id ?? null);
+      setFormData({
+        type: '',
+        subType: '',
+        brand: '',
+        model: '',
+        year: new Date().getFullYear(),
+        location: '',
+        description: '',
+        sellerName: '',
+        sellerPhone: '',
+        sellerEmail: '',
+        sellerWhatsApp: '',
+        specifications: {
+          gauge: '',
+          width: '',
+          needleNumber: '',
+          feeders: '',
+          rpm: '',
+          powerRating: '',
+          condition: 'Good'
+        }
+      });
+      setUploadedPhotos([]);
+      setUploadedVideo(null);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || 'Could not post this machine. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -172,7 +182,16 @@ const PostMachine = () => {
 
           {/* Messages */}
           {error && <div className="error-message">{error}</div>}
-          {success && <div className="success-message">✅ Machine posted successfully!</div>}
+          {success && (
+            <div className="success-message">
+              ✅ Machine posted successfully!{' '}
+              {createdId && (
+                <button type="button" className="success-message__link" onClick={() => navigate(`/machines/${createdId}`)}>
+                  View it live →
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Machine Type Section */}
           <section className="form-section">

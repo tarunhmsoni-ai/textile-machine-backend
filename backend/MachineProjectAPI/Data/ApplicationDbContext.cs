@@ -21,8 +21,9 @@ namespace MachineProjectAPI.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                var connectionString = "Server=(localdb)\\mssqllocaldb;Database=TextileMachineDB;Trusted_Connection=true;TrustServerCertificate=true;";
-                optionsBuilder.UseSqlServer(connectionString);
+                // Design-time fallback only (e.g. `dotnet ef migrations add` without DI config).
+                var connectionString = "Host=localhost;Database=textilemachinedb;Username=postgres;Password=postgres;";
+                optionsBuilder.UseNpgsql(connectionString);
             }
         }
 
@@ -42,11 +43,14 @@ namespace MachineProjectAPI.Data
                 .HasForeignKey(m => m.PostedByUserId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            // NoAction: combined with AssignedToUserId (direct, SetNull) and SoldMachineId below,
+            // a SetNull here would give Leads a second cascading path into Users via
+            // Machine.PostedByUserId — SQL Server rejects multiple cascade paths to one table.
             modelBuilder.Entity<Machine>()
                 .HasMany(m => m.Leads)
                 .WithOne(l => l.MatchedMachine)
                 .HasForeignKey(l => l.MatchedMachineId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.NoAction);
 
             // Lead relationships
             modelBuilder.Entity<Lead>()
@@ -55,11 +59,14 @@ namespace MachineProjectAPI.Data
                 .HasForeignKey(l => l.AssignedToUserId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            // NoAction (not SetNull): Leads reaches Users via three paths (AssignedToUserId
+            // directly, and indirectly through MatchedMachineId/SoldMachineId -> PostedByUserId),
+            // and SQL Server rejects multiple cascade paths to the same table.
             modelBuilder.Entity<Lead>()
                 .HasOne(l => l.SoldMachine)
                 .WithMany()
                 .HasForeignKey(l => l.SoldMachineId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Lead>()
                 .HasOne(l => l.ReferralPartner)

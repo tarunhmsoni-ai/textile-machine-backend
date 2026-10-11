@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import './MachineListings.css';
-import apiClient from '../../services/apiClient';
+import apiClient, { resolveMediaUrl } from '../../services/apiClient';
 import Navbar from '../../components/Navbar';
+import CategoryBar from '../../components/CategoryBar';
+import Breadcrumb from '../../components/Breadcrumb';
 import { SAMPLE_MACHINES } from '../../data/sampleMachines';
 
 const MachineListings = () => {
@@ -39,7 +41,8 @@ const MachineListings = () => {
       if (filters.location) params.append('location', filters.location);
 
       const response = await apiClient.get(`/machines?${params.toString()}`);
-      setMachines(response.data || []);
+      const data = (response.data || []).map((m) => ({ ...m, photo: resolveMediaUrl(m.photo) }));
+      setMachines(data);
     } catch (error) {
       console.error('Error fetching machines:', error);
       setMachines(SAMPLE_MACHINES);
@@ -56,18 +59,54 @@ const MachineListings = () => {
     navigate(`/machines/${machineId}`);
   };
 
+  const handleShare = async (machine) => {
+    const shareData = {
+      title: `${machine.brand} ${machine.model}`,
+      text: `Check out this ${machine.brand} ${machine.model} on Textile Machine`,
+      url: `${window.location.origin}/machines/${machine.id}`,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        /* user cancelled share — nothing to do */
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareData.url);
+      } catch {
+        /* clipboard unavailable — silently ignore */
+      }
+    }
+  };
+
+  const activeTypeName = machineTypes.find((t) => t.id === filters.type)?.name;
+
   return (
     <div className="machine-listings">
       <Navbar />
+      <CategoryBar active={filters.type} />
       {/* Header with back button */}
       <div className="listings-header">
-        <button className="back-btn" onClick={() => navigate('/')}>← Back</button>
+        <div className="listings-header__top">
+          <button className="back-btn" onClick={() => navigate('/')}>← Back</button>
+          <Breadcrumb
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'Machines', href: filters.type ? '/machines' : undefined },
+              ...(activeTypeName ? [{ label: activeTypeName }] : []),
+            ]}
+          />
+        </div>
         <h1>Browse Machines</h1>
       </div>
 
       <div className="listings-container">
-        {/* Sidebar Filters */}
-        <aside className="filters-sidebar">
+        {/* Sidebar */}
+        <div className="listings-sidebar-col">
+          <CategoryBar active={filters.type} layout="vertical" />
+
+          <aside className="filters-sidebar">
           <h3>Filters</h3>
 
           <div className="filter-group">
@@ -115,7 +154,8 @@ const MachineListings = () => {
           <button className="clear-filters-btn" onClick={() => setFilters({type: '', search: '', minPrice: '', maxPrice: '', location: ''})}>
             Clear Filters
           </button>
-        </aside>
+          </aside>
+        </div>
 
         {/* Main Content */}
         <main className="machines-grid">
@@ -135,20 +175,30 @@ const MachineListings = () => {
                 {machines.map((machine) => (
                   <div key={machine.id} className="machine-card">
                     <div className="machine-image">
-                      <div className="image-placeholder">
+                      <div className="machine-card__image-wrap">
                         <img src={machine.photo} alt={`${machine.brand} ${machine.model}`} />
                       </div>
+                      <div className="machine-image__ribbon">
+                        <span className="machine-card__badge">{machine.subtype}</span>
+                      </div>
+                      <button
+                        className="machine-image__share"
+                        onClick={() => handleShare(machine)}
+                        aria-label="Share this machine"
+                        title="Share"
+                      >
+                        ⤴
+                      </button>
                     </div>
                     <div className="machine-info">
                       <h3>{machine.brand} {machine.model}</h3>
                       <div className="specs">
-                        <span className="type-badge">{machine.subtype}</span>
                         <span className="year">{machine.year}</span>
+                        <span className="location">📍 {machine.location}</span>
                       </div>
-                      <p className="location">📍 {machine.location}</p>
-                      <p className="description">{machine.description}</p>
+                      <p className="machine-card__description">{machine.description}</p>
                       <div className="price-section">
-                        <p className="price-text">💬 Contact for Price</p>
+                        <p className="machine-card__price-text">💬 Contact for Price</p>
                       </div>
                       <div className="action-buttons">
                         <button

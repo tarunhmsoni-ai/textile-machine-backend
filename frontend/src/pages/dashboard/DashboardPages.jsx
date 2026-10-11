@@ -115,7 +115,7 @@ export function Submissions({ submissions, onReview }) {
   );
 }
 
-export function Machines({ machines }) {
+export function Machines({ machines, onDelete }) {
   const [query, setQuery] = useState('');
   const [year, setYear] = useState('');
 
@@ -157,12 +157,13 @@ export function Machines({ machines }) {
               <th>Location</th>
               <th>Price</th>
               <th>Status</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={9} className="muted">No machines match your search.</td>
+                <td colSpan={10} className="muted">No machines match your search.</td>
               </tr>
             ) : (
               filtered.map((m) => (
@@ -179,6 +180,21 @@ export function Machines({ machines }) {
                     <span className={`badge ${m.status === 'Available' ? 'available' : 'reserved'}`}>
                       {m.status}
                     </span>
+                  </td>
+                  <td>
+                    {onDelete && (
+                      <button
+                        type="button"
+                        className="btn danger small"
+                        onClick={() => {
+                          if (window.confirm(`Remove ${m.brand || 'this machine'} from the inventory?`)) {
+                            onDelete(m.id);
+                          }
+                        }}
+                      >
+                        Remove
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))

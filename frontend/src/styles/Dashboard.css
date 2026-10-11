@@ -139,6 +139,23 @@
   border: 0;
 }
 
+.dash .btn.danger {
+  background: transparent;
+  color: var(--red);
+  border-color: var(--red);
+}
+
+.dash .btn.danger:hover {
+  background: var(--red);
+  color: #fff;
+}
+
+.dash .btn.small {
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  border-radius: 8px;
+}
+
 .dash .green {
   background: var(--green);
   color: white;

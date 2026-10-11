@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Navbar from '../../components/Navbar';
+import CategoryBar from '../../components/CategoryBar';
 import GearLogo from '../../components/GearLogo';
 import AnimatedButton from '../../components/AnimatedButton';
-import apiClient from '../../services/apiClient';
+import apiClient, { resolveMediaUrl } from '../../services/apiClient';
 import { SAMPLE_MACHINES } from '../../data/sampleMachines';
 import './HomePage.css';
 
@@ -29,7 +30,7 @@ const MACHINE_TYPES = [
   },
 ];
 
-const TRUST_INDICATORS = ['VERIFIED LISTINGS', 'DIRECT SELLER CONNECTION', 'SMART SEARCH', 'INDUSTRIAL MARKETPLACE'];
+const TRUST_INDICATORS = ['VERIFIED LISTINGS', 'SMART SEARCH', 'INDUSTRIAL MARKETPLACE'];
 
 const PIPELINE_STEPS = [
   { n: '01', label: 'LIST', copy: 'Submit your machinery details.' },
@@ -48,7 +49,6 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('');
-  const [filterLocation, setFilterLocation] = useState('');
   const [email, setEmail] = useState('');
   const [newsletterDone, setNewsletterDone] = useState(false);
   const [contactDone, setContactDone] = useState(false);
@@ -67,7 +67,8 @@ const HomePage = () => {
     apiClient
       .get('/machines')
       .then((res) => {
-        if (!cancelled) setFeatured((res.data && res.data.length ? res.data : SAMPLE_MACHINES).slice(0, 3));
+        const list = res.data && res.data.length ? res.data : SAMPLE_MACHINES;
+        if (!cancelled) setFeatured(list.slice(0, 3).map((m) => ({ ...m, photo: resolveMediaUrl(m.photo) })));
       })
       .catch(() => {
         if (!cancelled) setFeatured(SAMPLE_MACHINES);
@@ -82,11 +83,31 @@ const HomePage = () => {
     const params = new URLSearchParams();
     if (searchQuery.trim()) params.set('search', searchQuery.trim());
     if (filterType) params.set('type', filterType);
-    if (filterLocation.trim()) params.set('location', filterLocation.trim());
     navigate(`/machines${params.toString() ? `?${params.toString()}` : ''}`);
   };
 
   const handleMachineTypeClick = (type) => navigate(`/machines?type=${type}`);
+
+  const handleShare = async (machine) => {
+    const shareData = {
+      title: `${machine.brand} ${machine.model}`,
+      text: `Check out this ${machine.brand} ${machine.model} on Textile Machine`,
+      url: `${window.location.origin}/machines/${machine.id}`,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        /* user cancelled share — nothing to do */
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareData.url);
+      } catch {
+        /* clipboard unavailable — silently ignore */
+      }
+    }
+  };
 
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
@@ -111,6 +132,7 @@ const HomePage = () => {
   return (
     <div className="ind-home">
       <Navbar />
+      <CategoryBar active={filterType} />
 
       <a
         href={`https://wa.me/${whatsappContact.replace(/\D/g, '')}`}
@@ -121,6 +143,63 @@ const HomePage = () => {
       >
         💬
       </a>
+
+      {/* ---------- Search ---------- */}
+      <section className="ind-search ind-search--top">
+        <div className="ind-search__inner">
+          <form className="ind-search__form" onSubmit={handleSearch}>
+            <select
+              value={filterType}
+              onChange={(e) => {
+                const [type, subtype] = e.target.value.split('::');
+                setFilterType(type || '');
+                if (subtype) setSearchQuery(subtype);
+              }}
+              className="ind-search__select"
+            >
+              <option value="">CATEGORY</option>
+              {MACHINE_TYPES.map((t) => (
+                <optgroup key={t.id} label={t.name.toUpperCase()}>
+                  <option value={t.id}>All {t.name}</option>
+                  {t.subtypes.map((s) => (
+                    <option key={s} value={`${t.id}::${s}`}>
+                      {s}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+            <input
+              type="text"
+              placeholder="Search machine name, brand, model..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="ind-search__input"
+            />
+            <AnimatedButton type="submit" variant="primary" icon={null}>
+              SEARCH
+            </AnimatedButton>
+            <AnimatedButton
+              type="button"
+              variant="primary"
+              icon={null}
+              className="ind-search__buy-btn"
+              onClick={() => navigate('/machines')}
+            >
+              BUY
+            </AnimatedButton>
+            <AnimatedButton
+              type="button"
+              variant="secondary"
+              icon={null}
+              className="ind-search__sell-btn"
+              onClick={() => navigate('/admin/post-machine')}
+            >
+              SELL
+            </AnimatedButton>
+          </form>
+        </div>
+      </section>
 
       {/* ---------- Hero ---------- */}
       <section className="ind-hero" ref={heroRef}>
@@ -160,7 +239,7 @@ const HomePage = () => {
             <AnimatedButton variant="primary" onClick={() => navigate('/machines')}>
               EXPLORE MACHINES
             </AnimatedButton>
-            <AnimatedButton variant="ghost" icon={null} onClick={() => navigate('/admin/post-machine')}>
+            <AnimatedButton variant="secondary" icon={null} onClick={() => navigate('/admin/post-machine')}>
               SELL YOUR MACHINE
             </AnimatedButton>
           </motion.div>
@@ -181,50 +260,108 @@ const HomePage = () => {
         </motion.div>
       </section>
 
-      {/* ---------- Search ---------- */}
-      <section className="ind-search">
+      {/* ---------- Buy / Sell / Get In Touch ---------- */}
+      <section className="ind-cta-trio">
         <motion.div
-          className="ind-search__inner"
+          className="ind-cta-card ind-cta-card--yellow"
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.4 }}
           variants={fadeUp}
         >
-          <h2 className="ind-section-title">
-            FIND EXACTLY
-            <br />
-            <span className="ind-accent">WHAT YOU NEED.</span>
-          </h2>
+          <h3>Buy</h3>
+          <p>Browse verified knitting, weaving and warping machinery from trusted sellers.</p>
+          <AnimatedButton variant="ghost" className="ind-cta-card__btn" onClick={() => navigate('/machines')}>
+            BROWSE MACHINES
+          </AnimatedButton>
+        </motion.div>
 
-          <form className="ind-search__form" onSubmit={handleSearch}>
-            <input
-              type="text"
-              placeholder="Search machine name, brand, model..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="ind-search__input"
-            />
-            <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="ind-search__select">
-              <option value="">CATEGORY</option>
-              {MACHINE_TYPES.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name.toUpperCase()}
-                </option>
-              ))}
-            </select>
-            <input
-              type="text"
-              placeholder="LOCATION"
-              value={filterLocation}
-              onChange={(e) => setFilterLocation(e.target.value)}
-              className="ind-search__input ind-search__input--location"
-            />
-            <AnimatedButton type="submit" variant="primary">
-              SEARCH MACHINES
-            </AnimatedButton>
-          </form>
+        <motion.div
+          className="ind-cta-card ind-cta-card--red"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.4 }}
+          variants={fadeUp}
+          transition={{ delay: 0.1 }}
+        >
+          <h3>Sell</h3>
+          <p>Post your machine and reach qualified buyers directly.</p>
+          <AnimatedButton variant="ghost" className="ind-cta-card__btn" onClick={() => navigate('/admin/post-machine')}>
+            POST YOUR MACHINE
+          </AnimatedButton>
+        </motion.div>
+
+        <motion.div
+          className="ind-cta-card ind-cta-card--grey"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.4 }}
+          variants={fadeUp}
+          transition={{ delay: 0.2 }}
+        >
+          <h3>Get In Touch</h3>
+          <p>Have a question about a machine, a deal or the platform? Talk to us directly.</p>
+          <AnimatedButton variant="ghost" className="ind-cta-card__btn" onClick={() => scrollTo('contact')}>
+            CONTACT US
+          </AnimatedButton>
         </motion.div>
       </section>
+
+      {/* ---------- Featured Machinery ---------- */}
+      {featured.length > 0 && (
+        <section className="ind-featured" id="machines">
+          <motion.h2
+            className="ind-section-title ind-section-title--center"
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.4 }}
+            variants={fadeUp}
+          >
+            FEATURED <span className="ind-accent">MACHINERY</span>
+          </motion.h2>
+
+          <div className="ind-featured__grid">
+            {featured.map((m, i) => (
+              <motion.div
+                key={m.id}
+                className="ind-machine-card"
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, amount: 0.3 }}
+                variants={fadeUp}
+                transition={{ delay: i * 0.1 }}
+              >
+                <div className="ind-machine-card__image">
+                  <img src={m.photo} alt={`${m.brand} ${m.model}`} />
+                  <span className="ind-machine-card__badge">{m.subtype}</span>
+                  <button
+                    className="ind-machine-card__share"
+                    onClick={() => handleShare(m)}
+                    aria-label="Share this machine"
+                    title="Share"
+                  >
+                    ⤴
+                  </button>
+                </div>
+                <div className="ind-machine-card__body">
+                  <h3>
+                    {m.year} {m.brand} {m.model}
+                  </h3>
+                  <p className="ind-machine-card__meta">
+                    {m.subtype} · {m.location}
+                  </p>
+                  <p className="ind-machine-card__price">Price On Request</p>
+                  <div className="ind-machine-card__actions">
+                    <AnimatedButton variant="ghost" onClick={() => navigate(`/machines/${m.id}`)}>
+                      VIEW DETAILS
+                    </AnimatedButton>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ---------- Categories ---------- */}
       <section className="ind-categories" id="categories">
@@ -262,53 +399,6 @@ const HomePage = () => {
           ))}
         </div>
       </section>
-
-      {/* ---------- Featured Machinery ---------- */}
-      {featured.length > 0 && (
-        <section className="ind-featured" id="machines">
-          <motion.h2
-            className="ind-section-title ind-section-title--center"
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.4 }}
-            variants={fadeUp}
-          >
-            FEATURED <span className="ind-accent">MACHINERY</span>
-          </motion.h2>
-
-          <div className="ind-featured__grid">
-            {featured.map((m, i) => (
-              <motion.div
-                key={m.id}
-                className="ind-machine-card"
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, amount: 0.3 }}
-                variants={fadeUp}
-                transition={{ delay: i * 0.1 }}
-              >
-                <div className="ind-machine-card__image">
-                  <img src={m.photo} alt={`${m.brand} ${m.model}`} />
-                </div>
-                <div className="ind-machine-card__body">
-                  <h3>
-                    {m.year} {m.brand} {m.model}
-                  </h3>
-                  <p className="ind-machine-card__meta">
-                    {m.subtype} · {m.location}
-                  </p>
-                  <p className="ind-machine-card__price">Price On Request</p>
-                  <div className="ind-machine-card__actions">
-                    <AnimatedButton variant="ghost" onClick={() => navigate(`/machines/${m.id}`)}>
-                      VIEW DETAILS
-                    </AnimatedButton>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* ---------- How It Works ---------- */}
       <section className="ind-timeline">
@@ -499,7 +589,7 @@ const HomePage = () => {
         </div>
 
         <div className="ind-footer__bottom">
-          <p>&copy; {new Date().getFullYear()} IronMarket. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Textile Machine. All rights reserved.</p>
         </div>
       </footer>
     </div>

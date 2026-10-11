@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: var(--bg-primary);
+  background: var(--bg-dark);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -13,13 +13,13 @@
 .industrial-loader__glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, rgba(217, 120, 36, 0.18) 0%, transparent 60%);
+  background: radial-gradient(circle at center, rgba(255, 204, 0, 0.18) 0%, transparent 60%);
   pointer-events: none;
 }
 
 .industrial-loader__mark {
   color: var(--accent-copper);
-  filter: drop-shadow(0 0 24px rgba(217, 120, 36, 0.4));
+  filter: drop-shadow(0 0 24px rgba(255, 204, 0, 0.4));
   transition: transform var(--dur-slow) var(--ease-mechanical);
 }
 
@@ -33,21 +33,21 @@
   font-size: 0.95rem;
   font-weight: 600;
   letter-spacing: 0.25em;
-  color: var(--text-primary);
+  color: var(--text-on-dark);
   margin: var(--space-sm) 0 0;
 }
 
 .industrial-loader__subtitle {
   font-size: 0.7rem;
   letter-spacing: 0.2em;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.6);
   margin: 0;
 }
 
 .industrial-loader__bar {
   width: 220px;
   height: 2px;
-  background: var(--border-subtle);
+  background: rgba(255, 255, 255, 0.15);
   margin-top: var(--space-sm);
   overflow: hidden;
 }
@@ -62,6 +62,6 @@
   font-family: var(--font-display);
   font-size: 0.75rem;
   letter-spacing: 0.15em;
-  color: var(--accent-copper-bright);
+  color: var(--accent-red);
   margin: 0;
 }

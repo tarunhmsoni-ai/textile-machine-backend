@@ -1,0 +1,87 @@
+.ind-category-bar {
+  margin-top: 72px;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.ind-category-bar__inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+}
+
+.ind-category-bar__tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.85rem 0.25rem;
+  margin-right: 1.5rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+}
+
+.ind-category-bar__tab:hover {
+  color: var(--text-primary);
+}
+
+.ind-category-bar__tab--active {
+  color: var(--accent-red);
+  border-bottom-color: var(--accent-red);
+}
+
+@media (max-width: 768px) {
+  .ind-category-bar__inner {
+    padding: 0 1rem;
+  }
+}
+
+/* Vertical (sidebar) variant */
+.ind-category-bar--vertical {
+  margin-top: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+}
+
+.ind-category-bar__title {
+  margin: 0 0 1rem 0;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--accent-copper);
+  padding-bottom: 0.6rem;
+}
+
+.ind-category-bar--vertical .ind-category-bar__inner {
+  max-width: none;
+  padding: 0;
+  flex-direction: column;
+  gap: 0;
+  overflow-x: visible;
+}
+
+.ind-category-bar--vertical .ind-category-bar__tab {
+  text-align: left;
+  border-bottom: none;
+  border-left: 2px solid transparent;
+  margin-right: 0;
+  padding: 0.6rem 0 0.6rem 0.85rem;
+}
+
+.ind-category-bar--vertical .ind-category-bar__tab--active {
+  border-bottom-color: transparent;
+  border-left-color: var(--accent-red);
+  background: rgba(255, 204, 0, 0.08);
+}

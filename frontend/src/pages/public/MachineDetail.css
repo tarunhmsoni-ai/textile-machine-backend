@@ -8,11 +8,17 @@
 .detail-header {
   background: var(--bg-secondary);
   padding: 1.5rem 2rem;
-  padding-top: calc(1.5rem + 72px);
   border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.detail-header__top {
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .machine-detail .back-btn {
@@ -22,7 +28,7 @@
   font-size: 0.8rem;
   letter-spacing: 0.06em;
   cursor: pointer;
-  color: var(--accent-copper-bright);
+  color: var(--accent-red);
 }
 
 .detail-header h1 {
@@ -62,6 +68,7 @@
 }
 
 .image-placeholder {
+  position: relative;
   width: 100%;
   aspect-ratio: 4/3;
   background: #000;
@@ -71,6 +78,29 @@
   justify-content: center;
   overflow: hidden;
   box-shadow: var(--shadow-elevated);
+}
+
+.main-image__share {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 8, 8, 0.65);
+  border: 1px solid var(--border-subtle);
+  border-radius: 50%;
+  color: var(--text-primary);
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease;
+}
+
+.main-image__share:hover {
+  border-color: var(--accent-copper);
+  color: var(--accent-red);
 }
 
 .image-placeholder img,
@@ -123,6 +153,20 @@
   color: #fff;
   font-size: 1.5rem;
   background: rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+.thumbnail__badge {
+  position: absolute;
+  left: 0.35rem;
+  bottom: 0.35rem;
+  background: var(--accent-copper);
+  color: #080808;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  letter-spacing: 0.03em;
   pointer-events: none;
 }
 
@@ -185,10 +229,10 @@
 
 /* Price Box */
 .price-box {
-  background: linear-gradient(135deg, var(--accent-bronze), var(--accent-copper));
-  color: #080808;
+  background: var(--accent-copper);
+  color: var(--text-primary);
   padding: 1.75rem;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   margin: 1.5rem 0;
   text-align: center;
 }
@@ -222,7 +266,7 @@
 }
 
 .location-info strong {
-  color: var(--accent-copper-bright);
+  color: var(--accent-red);
 }
 
 .description {
@@ -400,11 +444,11 @@
 .inline-contact-form textarea:focus {
   outline: none;
   border-color: var(--accent-copper);
-  box-shadow: 0 0 0 3px rgba(217, 120, 36, 0.15);
+  box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.15);
 }
 
 .inline-contact-form__success {
-  color: var(--accent-copper-bright);
+  color: var(--accent-red);
   font-family: var(--font-display);
   font-size: 0.8rem;
   text-align: center;
@@ -499,4 +543,18 @@
     padding: 0.6rem;
     font-size: 0.85rem;
   }
+}
+
+.detail-loading {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 6rem 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.detail-loading .back-btn {
+  display: inline-block;
+  margin-top: 1rem;
 }
