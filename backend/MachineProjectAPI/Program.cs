@@ -104,10 +104,8 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = string.Empty;
     });
 }
-else
-{
-    app.UseHttpsRedirection();
-}
+// No UseHttpsRedirection() in production: Render terminates HTTPS at its edge
+// and forwards plain HTTP to the container, so redirecting here would loop.
 
 app.UseStaticFiles(); // serves wwwroot/uploads/* (machine photos & videos)
 app.UseCors("AllowReactApp");
