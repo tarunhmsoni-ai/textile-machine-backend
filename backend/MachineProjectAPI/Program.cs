@@ -107,7 +107,20 @@ if (app.Environment.IsDevelopment())
 // No UseHttpsRedirection() in production: Render terminates HTTPS at its edge
 // and forwards plain HTTP to the container, so redirecting here would loop.
 
-app.UseStaticFiles(); // serves wwwroot/uploads/* (machine photos & videos)
+// Ensure wwwroot/uploads exists before wiring the static file provider — if the
+// folder is missing at startup, ASP.NET Core binds a non-live provider and files
+// written later (via uploads) never become servable even though they're saved.
+var uploadsRoot = Path.Combine(
+    string.IsNullOrEmpty(app.Environment.WebRootPath) ? Path.Combine(app.Environment.ContentRootPath, "wwwroot") : app.Environment.WebRootPath,
+    "uploads");
+Directory.CreateDirectory(Path.Combine(uploadsRoot, "photos"));
+Directory.CreateDirectory(Path.Combine(uploadsRoot, "videos"));
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(app.Environment.ContentRootPath, "wwwroot")),
+}); // serves wwwroot/uploads/* (machine photos & videos)
 app.UseCors("AllowReactApp");
 app.UseAuthentication();
 app.UseAuthorization();
