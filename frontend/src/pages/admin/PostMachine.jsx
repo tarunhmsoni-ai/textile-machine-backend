@@ -42,14 +42,14 @@ const PostMachine = () => {
   };
 
   const handleInputChange = (field, value) => {
-    setFormData({ ...formData, [field]: value });
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSpecChange = (field, value) => {
-    setFormData({
-      ...formData,
-      specifications: { ...formData.specifications, [field]: value }
-    });
+    setFormData((prev) => ({
+      ...prev,
+      specifications: { ...prev.specifications, [field]: value }
+    }));
   };
 
   const handlePhotoUpload = (e) => {
