@@ -173,7 +173,7 @@ const HomePage = () => {
                 }}
                 className="ind-search__select"
               >
-                <option value="">CATEGORY</option>
+                <option value="">CHOOSE MACHINE</option>
                 {MACHINE_TYPES.map((t) => (
                   <optgroup key={t.id} label={t.name.toUpperCase()}>
                     <option value={t.id}>All {t.name}</option>
