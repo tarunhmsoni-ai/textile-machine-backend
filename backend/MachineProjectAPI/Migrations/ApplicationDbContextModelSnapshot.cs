@@ -537,6 +537,9 @@ namespace MachineProjectAPI.Migrations
                     b.Property<decimal>("TotalCommissionEarned")
                         .HasColumnType("numeric");
 
+                    b.Property<decimal>("TotalCommissionPaid")
+                        .HasColumnType("numeric");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 

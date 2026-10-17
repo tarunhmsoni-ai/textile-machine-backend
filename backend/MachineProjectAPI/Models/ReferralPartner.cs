@@ -26,6 +26,7 @@ namespace MachineProjectAPI.Models
         public int LeadsProvided { get; set; } = 0;
         public int DealsMatured { get; set; } = 0;
         public decimal TotalCommissionEarned { get; set; } = 0;
+        public decimal TotalCommissionPaid { get; set; } = 0;
 
         public virtual ICollection<Lead> Leads { get; set; } = new List<Lead>();
     }

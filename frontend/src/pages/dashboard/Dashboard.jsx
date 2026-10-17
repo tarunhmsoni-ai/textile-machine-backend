@@ -14,6 +14,7 @@ import {
 } from './DashboardPages';
 import { LeadsPipeline } from './DashboardLeads';
 import { KpiDashboard } from './DashboardKpi';
+import { ReferralPartners } from './DashboardReferralPartners';
 import { SellerFormModal, SellerFormSidebar, SellerFormPage, ReviewModal, DealModal } from './DashboardModals';
 
 const NAV_ITEMS = [
@@ -22,6 +23,7 @@ const NAV_ITEMS = [
   { id: 'machines', label: '🏭 Machine Inventory' },
   { id: 'leads', label: '🧭 Leads & Pipeline' },
   { id: 'kpi', label: '📊 KPI Dashboard' },
+  { id: 'referrals', label: '🤝 Referral Partners' },
   { id: 'matching', label: '🔎 Machine Matching' },
   { id: 'clients', label: '👥 Sellers & Buyers' },
   { id: 'deals', label: '🤝 Deals & Brokerage' },
@@ -249,6 +251,7 @@ export default function Dashboard({ onLogout }) {
           {activePage === 'machines' && <Machines machines={machines} onDelete={handleDeleteMachine} />}
           {activePage === 'leads' && <LeadsPipeline onToast={showToast} />}
           {activePage === 'kpi' && <KpiDashboard onToast={showToast} />}
+          {activePage === 'referrals' && <ReferralPartners onToast={showToast} />}
           {activePage === 'matching' && (
             <Matching onSelectMatch={() => showToast('Machine linked and marked as shown')} />
           )}

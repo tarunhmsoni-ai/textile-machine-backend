@@ -19,6 +19,7 @@ export function LeadsPipeline({ onToast }) {
   const [selectedLead, setSelectedLead] = useState(null);
   const [activityForm, setActivityForm] = useState({ activityType: 'Phone Call', channel: '', description: '' });
   const [markSoldMachineId, setMarkSoldMachineId] = useState('');
+  const [referralPartners, setReferralPartners] = useState([]);
 
   const load = () => {
     setLoading(true);
@@ -30,6 +31,10 @@ export function LeadsPipeline({ onToast }) {
   };
 
   useEffect(load, [statusFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    apiClient.get('/referral-partners').then((res) => setReferralPartners(res.data || [])).catch(() => {});
+  }, []);
 
   const openLead = (id) => {
     apiClient.get(`/leads/${id}`).then((res) => setSelectedLead(res.data));
@@ -57,6 +62,17 @@ export function LeadsPipeline({ onToast }) {
       onToast?.('Activity logged.');
     } catch {
       onToast?.('Could not log this activity.');
+    }
+  };
+
+  const updateReferralPartner = async (lead, referralPartnerId) => {
+    try {
+      await apiClient.put(`/leads/${lead.id}`, { ...lead, referralPartnerId: referralPartnerId || null });
+      onToast?.('Referral partner updated.');
+      load();
+      openLead(lead.id);
+    } catch {
+      onToast?.('Could not update the referral partner.');
     }
   };
 
@@ -155,6 +171,19 @@ export function LeadsPipeline({ onToast }) {
             <div className="leads-pipeline__stats">
               <span>📞 {selectedLead.phoneCallCount} calls logged</span>
               <span>🔔 {selectedLead.followUpCount} follow-ups</span>
+            </div>
+
+            <div className="leads-pipeline__stage-row">
+              <label>Referral partner:</label>
+              <select
+                value={selectedLead.referralPartnerId || ''}
+                onChange={(e) => updateReferralPartner(selectedLead, e.target.value ? Number(e.target.value) : null)}
+              >
+                <option value="">None</option>
+                {referralPartners.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name} ({p.partnerType})</option>
+                ))}
+              </select>
             </div>
 
             <h4>Log an activity</h4>

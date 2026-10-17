@@ -189,7 +189,20 @@ namespace MachineProjectAPI.Controllers
             lead.PreferredLocation = request.PreferredLocation;
             lead.MatchedMachineId = request.MatchedMachineId;
             lead.Notes = request.Notes ?? lead.Notes;
-            lead.ReferralPartnerId = request.ReferralPartnerId;
+
+            if (request.ReferralPartnerId != lead.ReferralPartnerId)
+            {
+                lead.ReferralPartnerId = request.ReferralPartnerId;
+                if (request.ReferralPartnerId.HasValue)
+                {
+                    var newPartner = await _context.ReferralPartners.FindAsync(request.ReferralPartnerId.Value);
+                    if (newPartner != null)
+                    {
+                        newPartner.LeadsProvided += 1;
+                        newPartner.LastActive = DateTime.UtcNow;
+                    }
+                }
+            }
             lead.LastModified = DateTime.UtcNow;
 
             if (!string.IsNullOrWhiteSpace(request.Status) && request.Status != lead.Status)
