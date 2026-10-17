@@ -3,6 +3,53 @@ import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/apiClient';
 import './PostMachine.css';
 
+// Phone-camera photos (often 5-12MB each) can push a 5-photo submission
+// past what Render's free-tier proxy allows in one request, which returns
+// a raw non-JSON error page rather than a readable message. Downscale and
+// re-encode before upload so a multi-photo listing stays well under that.
+const MAX_IMAGE_DIMENSION = 1600;
+const IMAGE_QUALITY = 0.8;
+
+function compressImage(file) {
+  return new Promise((resolve) => {
+    if (!file.type.startsWith('image/') || file.type === 'image/gif') {
+      resolve(file);
+      return;
+    }
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      let { width, height } = img;
+      if (width > MAX_IMAGE_DIMENSION || height > MAX_IMAGE_DIMENSION) {
+        const scale = MAX_IMAGE_DIMENSION / Math.max(width, height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            resolve(file);
+            return;
+          }
+          resolve(new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' }));
+        },
+        'image/jpeg',
+        IMAGE_QUALITY
+      );
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(file);
+    };
+    img.src = objectUrl;
+  });
+}
+
 const machineTypes = {
   knitting: ['Warp Knitting', 'Circular Knitting', 'Flat Knitting', 'Beams'],
   weaving: ['Waterjet Loom', 'Airjet Loom', 'Rapier Loom', 'Power Loom'],
@@ -142,16 +189,19 @@ const PostMachine = () => {
     }));
   };
 
-  const handlePhotoUpload = (e) => {
+  const handlePhotoUpload = async (e) => {
     const files = Array.from(e.target.files);
     const maxPhotos = 5;
 
     if (uploadedPhotos.length + files.length > maxPhotos) {
       setError(`Maximum ${maxPhotos} photos allowed`);
+      e.target.value = '';
       return;
     }
+    e.target.value = '';
 
-    files.forEach((file, index) => {
+    for (const [index, originalFile] of files.entries()) {
+      const file = await compressImage(originalFile);
       const reader = new FileReader();
       reader.onload = (event) => {
         setUploadedPhotos(prev => [...prev, {
@@ -162,8 +212,7 @@ const PostMachine = () => {
         }]);
       };
       reader.readAsDataURL(file);
-    });
-    e.target.value = '';
+    }
   };
 
   const handleVideoUpload = (e) => {
@@ -260,7 +309,18 @@ const PostMachine = () => {
     } catch (err) {
       const data = err.response?.data;
       const validationErrors = data?.errors && Object.values(data.errors).flat().join(' ');
-      setError(data?.message || validationErrors || err.message || 'Could not post this machine. Please try again.');
+      if (data?.message) {
+        setError(data.message);
+      } else if (validationErrors) {
+        setError(validationErrors);
+      } else if (err.response && typeof data !== 'object') {
+        // Server/proxy rejected the request before our app could return a
+        // proper JSON error (e.g. upload too large for the platform) —
+        // the response body here is raw HTML/text, not something to show.
+        setError('Upload was rejected by the server. Try removing a photo/video or using smaller files, then try again.');
+      } else {
+        setError(err.message || 'Could not post this machine. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
