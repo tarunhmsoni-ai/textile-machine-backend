@@ -37,7 +37,14 @@ export function LeadsPipeline({ onToast }) {
   }, []);
 
   const openLead = (id) => {
-    apiClient.get(`/leads/${id}`).then((res) => setSelectedLead(res.data));
+    apiClient
+      .get(`/leads/${id}`)
+      .then((res) => setSelectedLead(res.data))
+      .catch(() => {
+        onToast?.('This lead is no longer available to you.');
+        setSelectedLead(null);
+        load();
+      });
   };
 
   const updateStatus = async (lead, status) => {
@@ -73,6 +80,23 @@ export function LeadsPipeline({ onToast }) {
       openLead(lead.id);
     } catch {
       onToast?.('Could not update the referral partner.');
+    }
+  };
+
+  const toggleRequirementEntered = async () => {
+    if (!selectedLead) return;
+    const newValue = !selectedLead.requirementEntered;
+    try {
+      await apiClient.put(`/leads/${selectedLead.id}`, { ...selectedLead, requirementEntered: newValue });
+      onToast?.(
+        newValue
+          ? 'Requirement entered — this lead now moves to admin-only visibility.'
+          : 'Requirement-entered flag cleared — visible to staff again.'
+      );
+      load();
+      openLead(selectedLead.id);
+    } catch {
+      onToast?.('Could not update this lead.');
     }
   };
 
@@ -171,6 +195,22 @@ export function LeadsPipeline({ onToast }) {
             <div className="leads-pipeline__stats">
               <span>📞 {selectedLead.phoneCallCount} calls logged</span>
               <span>🔔 {selectedLead.followUpCount} follow-ups</span>
+            </div>
+
+            <div className="leads-pipeline__requirement-row">
+              <label className="leads-pipeline__checkbox">
+                <input
+                  type="checkbox"
+                  checked={!!selectedLead.requirementEntered}
+                  onChange={toggleRequirementEntered}
+                />
+                Requirement entered
+              </label>
+              <span className="muted">
+                {selectedLead.requirementEntered
+                  ? 'Hidden from staff from here on — admin only.'
+                  : 'Staff can still see and work this lead.'}
+              </span>
             </div>
 
             <div className="leads-pipeline__stage-row">

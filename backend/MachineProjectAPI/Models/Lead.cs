@@ -33,6 +33,10 @@ namespace MachineProjectAPI.Models
         public string Status { get; set; } = "New"; // New, Qualified, Contacted, Factory Visit, Negotiation, Won, Lost
         public string SubStatus { get; set; } = string.Empty; // Additional details about status
 
+        // Per the client's access control: staff can enter leads and work them up
+        // to this point, then the lead stops being visible to staff entirely.
+        public bool RequirementEntered { get; set; } = false;
+
         // Tracking
         public DateTime DateReceived { get; set; } = DateTime.UtcNow;
         public DateTime? DateQualified { get; set; }

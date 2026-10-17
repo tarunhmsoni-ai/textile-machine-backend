@@ -35,6 +35,7 @@ namespace MachineProjectAPI.Models
         public int? ReferralPartnerId { get; set; }
         public string? ReferralPartnerName { get; set; }
         public bool ReferralCommissionEarned { get; set; }
+        public bool RequirementEntered { get; set; }
         public List<LeadActivityDto> Activities { get; set; } = new();
     }
 
@@ -69,6 +70,7 @@ namespace MachineProjectAPI.Models
         public int? MatchedMachineId { get; set; }
         public string? Notes { get; set; }
         public int? ReferralPartnerId { get; set; }
+        public bool? RequirementEntered { get; set; }
     }
 
     // Submitted anonymously from the website's "Contact Form" / machine-detail enquiry

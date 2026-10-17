@@ -18,14 +18,24 @@ namespace MachineProjectAPI.Controllers
             _context = context;
         }
 
+        // Per the client's access control: staff can enter and work a lead up to
+        // "requirement entered", then it drops out of their visibility entirely.
+        private bool IsStaff => User.IsInRole(UserRoles.Staff);
+
         /// <summary>
-        /// List leads for the admin Pipeline page. Admin/staff only.
+        /// List leads for the admin Pipeline page. Staff never see leads whose
+        /// requirement has already been entered.
         /// GET /api/leads?status=&source=
         /// </summary>
         [HttpGet]
         public async Task<ActionResult<List<LeadDto>>> GetLeads([FromQuery] string? status, [FromQuery] string? source)
         {
             var query = _context.Leads.Where(l => l.IsActive).AsQueryable();
+
+            if (IsStaff)
+            {
+                query = query.Where(l => !l.RequirementEntered);
+            }
 
             if (!string.IsNullOrWhiteSpace(status))
             {
@@ -59,7 +69,7 @@ namespace MachineProjectAPI.Controllers
                 .Include(l => l.Activities)
                 .FirstOrDefaultAsync(l => l.Id == id && l.IsActive);
 
-            if (lead == null) return NotFound(new { message = "Lead not found." });
+            if (lead == null || (IsStaff && lead.RequirementEntered)) return NotFound(new { message = "Lead not found." });
 
             return Ok(ToDto(lead, includeActivities: true));
         }
@@ -171,7 +181,7 @@ namespace MachineProjectAPI.Controllers
         public async Task<ActionResult<LeadDto>> UpdateLead(int id, [FromBody] LeadRequest request)
         {
             var lead = await _context.Leads.FirstOrDefaultAsync(l => l.Id == id && l.IsActive);
-            if (lead == null) return NotFound(new { message = "Lead not found." });
+            if (lead == null || (IsStaff && lead.RequirementEntered)) return NotFound(new { message = "Lead not found." });
 
             lead.Source = string.IsNullOrWhiteSpace(request.Source) ? lead.Source : request.Source;
             lead.SourceDetails = request.SourceDetails;
@@ -219,6 +229,11 @@ namespace MachineProjectAPI.Controllers
                 lead.SubStatus = request.SubStatus;
             }
 
+            if (request.RequirementEntered.HasValue)
+            {
+                lead.RequirementEntered = request.RequirementEntered.Value;
+            }
+
             await _context.SaveChangesAsync();
 
             var reloaded = await _context.Leads
@@ -237,7 +252,7 @@ namespace MachineProjectAPI.Controllers
         public async Task<ActionResult<LeadDto>> MarkSold(int id, [FromQuery] int machineId)
         {
             var lead = await _context.Leads.FirstOrDefaultAsync(l => l.Id == id && l.IsActive);
-            if (lead == null) return NotFound(new { message = "Lead not found." });
+            if (lead == null || (IsStaff && lead.RequirementEntered)) return NotFound(new { message = "Lead not found." });
 
             var machine = await _context.Machines.FirstOrDefaultAsync(m => m.Id == machineId && m.IsActive);
             if (machine == null) return NotFound(new { message = "Machine not found." });
@@ -281,7 +296,7 @@ namespace MachineProjectAPI.Controllers
         public async Task<ActionResult> DeleteLead(int id)
         {
             var lead = await _context.Leads.FirstOrDefaultAsync(l => l.Id == id && l.IsActive);
-            if (lead == null) return NotFound(new { message = "Lead not found." });
+            if (lead == null || (IsStaff && lead.RequirementEntered)) return NotFound(new { message = "Lead not found." });
 
             lead.IsActive = false;
             await _context.SaveChangesAsync();
@@ -297,7 +312,7 @@ namespace MachineProjectAPI.Controllers
         public async Task<ActionResult<LeadActivityDto>> AddActivity(int id, [FromBody] LeadActivityRequest request)
         {
             var lead = await _context.Leads.FirstOrDefaultAsync(l => l.Id == id && l.IsActive);
-            if (lead == null) return NotFound(new { message = "Lead not found." });
+            if (lead == null || (IsStaff && lead.RequirementEntered)) return NotFound(new { message = "Lead not found." });
 
             if (string.IsNullOrWhiteSpace(request.ActivityType))
             {
@@ -346,17 +361,16 @@ namespace MachineProjectAPI.Controllers
         [HttpDelete("{id:int}/activities/{activityId:int}")]
         public async Task<ActionResult> DeleteActivity(int id, int activityId)
         {
+            var lead = await _context.Leads.FirstOrDefaultAsync(l => l.Id == id);
+            if (lead == null || (IsStaff && lead.RequirementEntered)) return NotFound(new { message = "Lead not found." });
+
             var activity = await _context.LeadActivities.FirstOrDefaultAsync(a => a.Id == activityId && a.LeadId == id);
             if (activity == null) return NotFound(new { message = "Activity not found." });
 
-            var lead = await _context.Leads.FirstOrDefaultAsync(l => l.Id == id);
-            if (lead != null)
+            lead.FollowUpCount = Math.Max(0, lead.FollowUpCount - 1);
+            if (activity.ActivityType == ActivityTypes.PhoneCall)
             {
-                lead.FollowUpCount = Math.Max(0, lead.FollowUpCount - 1);
-                if (activity.ActivityType == ActivityTypes.PhoneCall)
-                {
-                    lead.PhoneCallCount = Math.Max(0, lead.PhoneCallCount - 1);
-                }
+                lead.PhoneCallCount = Math.Max(0, lead.PhoneCallCount - 1);
             }
 
             _context.LeadActivities.Remove(activity);
@@ -395,6 +409,7 @@ namespace MachineProjectAPI.Controllers
             ReferralPartnerId = l.ReferralPartnerId,
             ReferralPartnerName = l.ReferralPartner?.Name,
             ReferralCommissionEarned = l.ReferralCommissionEarned,
+            RequirementEntered = l.RequirementEntered,
             Activities = includeActivities
                 ? l.Activities.OrderByDescending(a => a.ActivityDate).Select(a => new LeadActivityDto
                 {

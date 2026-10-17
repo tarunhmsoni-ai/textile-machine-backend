@@ -674,6 +674,23 @@
   border-radius: 6px;
 }
 
+.dash .leads-pipeline__requirement-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 0.75rem 0;
+  font-size: 0.8rem;
+}
+
+.dash .leads-pipeline__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
 .dash .leads-pipeline__stats {
   display: flex;
   gap: 1rem;

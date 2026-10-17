@@ -264,6 +264,9 @@ namespace MachineProjectAPI.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("RequirementEntered")
+                        .HasColumnType("boolean");
+
                     b.Property<int?>("SoldMachineId")
                         .HasColumnType("integer");
 
