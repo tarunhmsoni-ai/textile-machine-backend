@@ -17,6 +17,7 @@ namespace MachineProjectAPI.Data
         public DbSet<ReferralPartner> ReferralPartners { get; set; } = null!;
         public DbSet<KPI> KPIs { get; set; } = null!;
         public DbSet<Contact> Contacts { get; set; } = null!;
+        public DbSet<StaffAccessIp> StaffAccessIps { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

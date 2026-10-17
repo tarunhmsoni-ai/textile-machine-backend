@@ -8,11 +8,11 @@ namespace MachineProjectAPI.Controllers
 {
     /// <summary>
     /// The 10 KPIs from the client's KPI.docx, computed live for a date range.
-    /// Admin only — never exposed to the public site.
+    /// Admin only, per the client's doc ("KPI shall be visible to Admin only").
     /// </summary>
     [ApiController]
     [Route("api/kpi")]
-    [Authorize]
+    [Authorize(Roles = UserRoles.Admin)]
     public class KpiController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

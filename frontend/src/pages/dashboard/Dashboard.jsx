@@ -15,6 +15,7 @@ import {
 import { LeadsPipeline } from './DashboardLeads';
 import { KpiDashboard } from './DashboardKpi';
 import { ReferralPartners } from './DashboardReferralPartners';
+import { StaffAccess } from './DashboardStaffAccess';
 import { SellerFormModal, SellerFormSidebar, SellerFormPage, ReviewModal, DealModal } from './DashboardModals';
 
 const NAV_ITEMS = [
@@ -22,8 +23,9 @@ const NAV_ITEMS = [
   { id: 'submissions', label: '📥 Seller Submissions' },
   { id: 'machines', label: '🏭 Machine Inventory' },
   { id: 'leads', label: '🧭 Leads & Pipeline' },
-  { id: 'kpi', label: '📊 KPI Dashboard' },
+  { id: 'kpi', label: '📊 KPI Dashboard', adminOnly: true },
   { id: 'referrals', label: '🤝 Referral Partners' },
+  { id: 'staff-access', label: '🔒 Staff Access', adminOnly: true },
   { id: 'matching', label: '🔎 Machine Matching' },
   { id: 'clients', label: '👥 Sellers & Buyers' },
   { id: 'deals', label: '🤝 Deals & Brokerage' },
@@ -109,6 +111,8 @@ export default function Dashboard({ onLogout }) {
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userFullName');
     onLogout?.();
     navigate('/login');
   };
@@ -177,6 +181,8 @@ export default function Dashboard({ onLogout }) {
     showToast('Submission rejected');
   };
 
+  const isAdmin = localStorage.getItem('userRole') === 'Admin';
+  const visibleNavItems = NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin);
   const currentTitle = NAV_ITEMS.find((n) => n.id === activePage)?.label.replace(/^\S+\s/, '');
 
   return (
@@ -191,7 +197,7 @@ export default function Dashboard({ onLogout }) {
             </div>
           </div>
           <div className="nav">
-            {NAV_ITEMS.map((item) => (
+            {visibleNavItems.map((item) => (
               <button
                 key={item.id}
                 className={activePage === item.id ? 'on' : ''}
@@ -252,6 +258,7 @@ export default function Dashboard({ onLogout }) {
           {activePage === 'leads' && <LeadsPipeline onToast={showToast} />}
           {activePage === 'kpi' && <KpiDashboard onToast={showToast} />}
           {activePage === 'referrals' && <ReferralPartners onToast={showToast} />}
+          {activePage === 'staff-access' && isAdmin && <StaffAccess onToast={showToast} />}
           {activePage === 'matching' && (
             <Matching onSelectMatch={() => showToast('Machine linked and marked as shown')} />
           )}

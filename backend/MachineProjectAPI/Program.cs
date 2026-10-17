@@ -123,6 +123,34 @@ app.UseStaticFiles(new StaticFileOptions
 }); // serves wwwroot/uploads/* (machine photos & videos)
 app.UseCors("AllowReactApp");
 app.UseAuthentication();
+
+// Staff tokens are only valid from a whitelisted office IP — checked on every
+// request (not just login), so a token can't be lifted off the office network.
+// Admin tokens are never restricted.
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity?.IsAuthenticated == true
+        && context.User.IsInRole(UserRoles.Staff))
+    {
+        var db = context.RequestServices.GetRequiredService<ApplicationDbContext>();
+        var clientIp = MachineProjectAPI.Services.ClientIpHelper.GetClientIp(context);
+        var allowed = !string.IsNullOrEmpty(clientIp)
+            && await db.StaffAccessIps.AnyAsync(w => w.IpAddress == clientIp);
+
+        if (!allowed)
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            await context.Response.WriteAsJsonAsync(new
+            {
+                message = $"This session is no longer on a whitelisted office network ({clientIp ?? "unknown"}). Please log in again from the office.",
+            });
+            return;
+        }
+    }
+
+    await next();
+});
+
 app.UseAuthorization();
 app.MapControllers();
 
@@ -137,12 +165,21 @@ using (var scope = app.Services.CreateScope())
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         db.Database.Migrate();
 
-        if (!db.Users.Any(u => u.Username == "admin"))
+        var adminUser = db.Users.FirstOrDefault(u => u.Username == "admin");
+        if (adminUser == null)
         {
             var hasher = new PasswordHasher<User>();
-            var admin = new User { Username = "admin", FullName = "Administrator" };
-            admin.PasswordHash = hasher.HashPassword(admin, "admin123");
-            db.Users.Add(admin);
+            adminUser = new User { Username = "admin", FullName = "Administrator", Role = UserRoles.Admin };
+            adminUser.PasswordHash = hasher.HashPassword(adminUser, "admin123");
+            db.Users.Add(adminUser);
+            db.SaveChanges();
+        }
+        else if (adminUser.Role != UserRoles.Admin)
+        {
+            // Backfills the Role column for the account that existed before
+            // Role was introduced — the User.Role property defaults to
+            // "Staff", which must never apply to the seeded admin account.
+            adminUser.Role = UserRoles.Admin;
             db.SaveChanges();
         }
     }

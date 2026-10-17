@@ -43,6 +43,8 @@ export default function Login({ onLoginSuccess }) {
         password,
       });
       localStorage.setItem('authToken', data.token);
+      localStorage.setItem('userRole', data.role || '');
+      localStorage.setItem('userFullName', data.fullName || '');
       onLoginSuccess?.();
       setAccessGranted(true);
       setTimeout(() => {
@@ -196,9 +198,6 @@ export default function Login({ onLoginSuccess }) {
             </button>
           </form>
 
-          <p className="ind-login__signup">
-            Don&apos;t have an account? <span className="ind-login__signup-link">CREATE ACCOUNT</span>
-          </p>
         </div>
       </div>
     </div>
