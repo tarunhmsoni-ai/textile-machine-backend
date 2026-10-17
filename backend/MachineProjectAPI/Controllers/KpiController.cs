@@ -29,8 +29,13 @@ namespace MachineProjectAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<KpiSummaryDto>> GetSummary([FromQuery] DateTime? start, [FromQuery] DateTime? end)
         {
-            var periodStart = (start ?? new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1)).Date;
-            var periodEnd = (end ?? periodStart.AddMonths(1).AddDays(-1)).Date.AddDays(1).AddTicks(-1);
+            // Npgsql requires DateTimeKind.Utc for "timestamp with time zone" columns —
+            // both `new DateTime(...)` and model-bound query-string dates default to
+            // Unspecified, which throws at query time. Normalize explicitly.
+            DateTime AsUtc(DateTime d) => DateTime.SpecifyKind(d.Date, DateTimeKind.Utc);
+
+            var periodStart = AsUtc(start ?? new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1));
+            var periodEnd = AsUtc(end ?? periodStart.AddMonths(1).AddDays(-1)).AddDays(1).AddTicks(-1);
 
             var machinesReceived = await _context.Machines
                 .CountAsync(m => m.IsActive && m.DatePosted >= periodStart && m.DatePosted <= periodEnd);
