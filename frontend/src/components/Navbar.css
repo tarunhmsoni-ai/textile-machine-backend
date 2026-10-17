@@ -109,6 +109,20 @@
   box-shadow: var(--shadow-copper-glow);
 }
 
+.ind-navbar__cta--whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #25d366;
+  color: #fff;
+  text-decoration: none;
+}
+
+.ind-navbar__cta--whatsapp:hover {
+  background: #1ebe5a;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35);
+}
+
 .ind-navbar__burger {
   display: none;
   flex-direction: column;

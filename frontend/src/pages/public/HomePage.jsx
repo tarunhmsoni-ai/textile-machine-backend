@@ -132,7 +132,6 @@ const HomePage = () => {
   return (
     <div className="ind-home">
       <Navbar />
-      <CategoryBar active={filterType} />
 
       <a
         href={`https://wa.me/${whatsappContact.replace(/\D/g, '')}`}
@@ -144,62 +143,49 @@ const HomePage = () => {
         💬
       </a>
 
-      {/* ---------- Search ---------- */}
-      <section className="ind-search ind-search--top">
-        <div className="ind-search__inner">
-          <form className="ind-search__form" onSubmit={handleSearch}>
-            <select
-              value={filterType}
-              onChange={(e) => {
-                const [type, subtype] = e.target.value.split('::');
-                setFilterType(type || '');
-                if (subtype) setSearchQuery(subtype);
-              }}
-              className="ind-search__select"
-            >
-              <option value="">CATEGORY</option>
-              {MACHINE_TYPES.map((t) => (
-                <optgroup key={t.id} label={t.name.toUpperCase()}>
-                  <option value={t.id}>All {t.name}</option>
-                  {t.subtypes.map((s) => (
-                    <option key={s} value={`${t.id}::${s}`}>
-                      {s}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-            <input
-              type="text"
-              placeholder="Search machine name, brand, model..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="ind-search__input"
-            />
-            <AnimatedButton type="submit" variant="primary" icon={null}>
-              SEARCH
-            </AnimatedButton>
-            <AnimatedButton
-              type="button"
-              variant="primary"
-              icon={null}
-              className="ind-search__buy-btn"
-              onClick={() => navigate('/machines')}
-            >
-              BUY
-            </AnimatedButton>
-            <AnimatedButton
-              type="button"
-              variant="secondary"
-              icon={null}
-              className="ind-search__sell-btn"
-              onClick={() => navigate('/admin/post-machine')}
-            >
-              SELL
-            </AnimatedButton>
-          </form>
-        </div>
-      </section>
+      {/* Category bar + search stay frozen under the navbar while the buyer scrolls */}
+      <div className="ind-home__sticky-bar">
+        <CategoryBar active={filterType} />
+
+        {/* ---------- Search ---------- */}
+        <section className="ind-search ind-search--top">
+          <div className="ind-search__inner">
+            <form className="ind-search__form" onSubmit={handleSearch}>
+              <select
+                value={filterType}
+                onChange={(e) => {
+                  const [type, subtype] = e.target.value.split('::');
+                  setFilterType(type || '');
+                  if (subtype) setSearchQuery(subtype);
+                }}
+                className="ind-search__select"
+              >
+                <option value="">CATEGORY</option>
+                {MACHINE_TYPES.map((t) => (
+                  <optgroup key={t.id} label={t.name.toUpperCase()}>
+                    <option value={t.id}>All {t.name}</option>
+                    {t.subtypes.map((s) => (
+                      <option key={s} value={`${t.id}::${s}`}>
+                        {s}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+              <input
+                type="text"
+                placeholder="Search machine name, brand, model..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="ind-search__input"
+              />
+              <AnimatedButton type="submit" variant="primary" icon={null}>
+                SEARCH
+              </AnimatedButton>
+            </form>
+          </div>
+        </section>
+      </div>
 
       {/* ---------- Featured Machinery (shown first, before the hero copy) ---------- */}
       {featured.length > 0 && (
@@ -293,9 +279,6 @@ const HomePage = () => {
             <AnimatedButton variant="primary" onClick={() => navigate('/machines')}>
               EXPLORE MACHINES
             </AnimatedButton>
-            <AnimatedButton variant="secondary" icon={null} onClick={() => navigate('/admin/post-machine')}>
-              SELL YOUR MACHINE
-            </AnimatedButton>
           </motion.div>
 
           <motion.div
@@ -311,10 +294,23 @@ const HomePage = () => {
               </span>
             ))}
           </motion.div>
+
+          <motion.p
+            initial="hidden"
+            animate="show"
+            variants={fadeUp}
+            transition={{ delay: 0.4 }}
+            className="ind-hero__sell-note"
+          >
+            Have a machine to sell?{' '}
+            <button type="button" onClick={() => navigate('/admin/post-machine')}>
+              List it here →
+            </button>
+          </motion.p>
         </motion.div>
       </section>
 
-      {/* ---------- Buy / Sell / Get In Touch ---------- */}
+      {/* ---------- Buy / Get In Touch ---------- */}
       <section className="ind-cta-trio">
         <motion.div
           className="ind-cta-card ind-cta-card--yellow"
@@ -331,27 +327,12 @@ const HomePage = () => {
         </motion.div>
 
         <motion.div
-          className="ind-cta-card ind-cta-card--red"
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.4 }}
-          variants={fadeUp}
-          transition={{ delay: 0.1 }}
-        >
-          <h3>Sell</h3>
-          <p>Post your machine and reach qualified buyers directly.</p>
-          <AnimatedButton variant="ghost" className="ind-cta-card__btn" onClick={() => navigate('/admin/post-machine')}>
-            POST YOUR MACHINE
-          </AnimatedButton>
-        </motion.div>
-
-        <motion.div
           className="ind-cta-card ind-cta-card--grey"
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.4 }}
           variants={fadeUp}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.1 }}
         >
           <h3>Get In Touch</h3>
           <p>Have a question about a machine, a deal or the platform? Talk to us directly.</p>
@@ -472,40 +453,11 @@ const HomePage = () => {
         </motion.div>
       </section>
 
-      {/* ---------- Sell Your Machine ---------- */}
-      <section className="ind-sell">
-        <motion.h2
-          className="ind-section-title ind-section-title--center"
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.4 }}
-          variants={fadeUp}
-        >
-          HAVE MACHINES TO <span className="ind-accent">SELL?</span>
-        </motion.h2>
-        <p className="ind-sell__sub">Post your machines and reach qualified buyers directly.</p>
-
-        <div className="ind-sell__methods">
-          <div className="ind-sell__method">
-            <h3>📞 Phone</h3>
-            <p>Call us at {whatsappContact}</p>
-          </div>
-          <div className="ind-sell__method">
-            <h3>💬 WhatsApp</h3>
-            <p>Message {whatsappContact}</p>
-          </div>
-          <div className="ind-sell__method">
-            <h3>📧 Email</h3>
-            <p>nikhhilkgarg@gmail.com</p>
-          </div>
-          <div className="ind-sell__method">
-            <h3>📝 Contact Form</h3>
-            <AnimatedButton variant="ghost" icon={null} onClick={() => scrollTo('contact')}>
-              Fill Form
-            </AnimatedButton>
-          </div>
-        </div>
-      </section>
+      {/* Selling is a small, low-emphasis line — this site is buyer-first */}
+      <p className="ind-sell-line">
+        Have a machine to sell? Call/WhatsApp {whatsappContact}, email nikhhilkgarg@gmail.com, or{' '}
+        <button type="button" onClick={() => navigate('/admin/post-machine')}>post it directly →</button>
+      </p>
 
       {/* ---------- Newsletter ---------- */}
       <section className="ind-newsletter">

@@ -10,6 +10,8 @@ const LINKS = [
   { label: 'SELL YOUR MACHINE', href: '/admin/post-machine' },
 ];
 
+const WHATSAPP_NUMBER = '919662001216';
+
 export default function Navbar() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
@@ -46,9 +48,14 @@ export default function Navbar() {
           <button className="ind-navbar__login" onClick={() => go('/admin/login')}>
             LOGIN
           </button>
-          <button className="ind-navbar__cta" onClick={() => go('/admin/post-machine')}>
-            LIST YOUR MACHINE
-          </button>
+          <a
+            className="ind-navbar__cta ind-navbar__cta--whatsapp"
+            href={`https://wa.me/${WHATSAPP_NUMBER}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            💬 WHATSAPP US
+          </a>
         </div>
 
         <button
@@ -68,7 +75,15 @@ export default function Navbar() {
             {l.label}
           </button>
         ))}
-        <button className="ind-navbar__mobile-link ind-navbar__mobile-link--accent" onClick={() => go('/admin/login')}>
+        <a
+          className="ind-navbar__mobile-link ind-navbar__mobile-link--accent"
+          href={`https://wa.me/${WHATSAPP_NUMBER}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          💬 WHATSAPP US
+        </a>
+        <button className="ind-navbar__mobile-link" onClick={() => go('/admin/login')}>
           LOGIN
         </button>
       </div>
