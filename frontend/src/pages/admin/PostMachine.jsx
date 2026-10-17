@@ -201,6 +201,10 @@ const PostMachine = () => {
         throw new Error('Please fill in all required fields');
       }
 
+      if (!formData.year || Number(formData.year) <= 0) {
+        throw new Error('Please enter the year manufactured');
+      }
+
       if (uploadedPhotos.length === 0) {
         throw new Error('Please upload at least one photo');
       }
@@ -254,7 +258,9 @@ const PostMachine = () => {
       setUploadedPhotos([]);
       setUploadedVideo(null);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Could not post this machine. Please try again.');
+      const data = err.response?.data;
+      const validationErrors = data?.errors && Object.values(data.errors).flat().join(' ');
+      setError(data?.message || validationErrors || err.message || 'Could not post this machine. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -53,9 +53,9 @@ namespace MachineProjectAPI.Models
         public string SubType { get; set; } = string.Empty;
         public string Brand { get; set; } = string.Empty;
         public string Model { get; set; } = string.Empty;
-        public int Year { get; set; }
+        public int? Year { get; set; }
         public string Location { get; set; } = string.Empty;
-        public decimal AskingPrice { get; set; }
+        public decimal? AskingPrice { get; set; }
         public int Quantity { get; set; } = 1;
         public string Description { get; set; } = string.Empty;
         public string Condition { get; set; } = "Good";

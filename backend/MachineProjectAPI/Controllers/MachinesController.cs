@@ -124,6 +124,11 @@ namespace MachineProjectAPI.Controllers
                 return BadRequest(new { message = "Type, brand and model are required." });
             }
 
+            if (!request.Year.HasValue || request.Year.Value <= 0)
+            {
+                return BadRequest(new { message = "Year manufactured is required." });
+            }
+
             var photoUrls = new List<string>();
             if (request.Photos != null)
             {
@@ -157,9 +162,9 @@ namespace MachineProjectAPI.Controllers
                 SubType = request.SubType,
                 Brand = request.Brand,
                 Model = request.Model,
-                Year = request.Year,
+                Year = request.Year.Value,
                 Location = request.Location,
-                AskingPrice = request.AskingPrice,
+                AskingPrice = request.AskingPrice ?? 0,
                 Quantity = request.Quantity <= 0 ? 1 : request.Quantity,
                 Description = request.Description,
                 Condition = string.IsNullOrWhiteSpace(request.Condition) ? "Good" : request.Condition,
@@ -200,9 +205,15 @@ namespace MachineProjectAPI.Controllers
             machine.SubType = request.SubType;
             machine.Brand = request.Brand;
             machine.Model = request.Model;
-            machine.Year = request.Year;
+            if (request.Year.HasValue && request.Year.Value > 0)
+            {
+                machine.Year = request.Year.Value;
+            }
             machine.Location = request.Location;
-            machine.AskingPrice = request.AskingPrice;
+            if (request.AskingPrice.HasValue)
+            {
+                machine.AskingPrice = request.AskingPrice.Value;
+            }
             machine.Quantity = request.Quantity <= 0 ? machine.Quantity : request.Quantity;
             machine.Description = request.Description;
             machine.Condition = string.IsNullOrWhiteSpace(request.Condition) ? machine.Condition : request.Condition;
