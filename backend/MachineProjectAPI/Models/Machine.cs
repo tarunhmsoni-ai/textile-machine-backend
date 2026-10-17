@@ -36,6 +36,9 @@ namespace MachineProjectAPI.Models
         public string Status { get; set; } = "Draft"; // Draft, Verified, Live, Sold, Archived
         public DateTime? DateLive { get; set; }
         public DateTime? DateSold { get; set; }
+        // Set when the machine was sold by another broker rather than through us —
+        // feeds the "Machines sold by other broker" KPI.
+        public bool SoldByOtherBroker { get; set; } = false;
 
         // Tracking
         public int? PostedByUserId { get; set; }

@@ -269,6 +269,30 @@ namespace MachineProjectAPI.Controllers
         }
 
         /// <summary>
+        /// Mark a machine as sold by another broker (not through us) — feeds the
+        /// "Machines sold by other broker" KPI. Requires login.
+        /// POST /api/machines/{id}/mark-sold-elsewhere
+        /// </summary>
+        [HttpPost("{id:int}/mark-sold-elsewhere")]
+        [Authorize]
+        public async Task<ActionResult<MachineDetailDto>> MarkSoldElsewhere(int id)
+        {
+            var machine = await _context.Machines.FirstOrDefaultAsync(m => m.Id == id && m.IsActive);
+            if (machine == null)
+            {
+                return NotFound(new { message = "Machine not found." });
+            }
+
+            machine.SoldByOtherBroker = true;
+            machine.Status = "Archived";
+            machine.DateSold = DateTime.UtcNow;
+            machine.LastModified = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return Ok(ToDetailDto(machine));
+        }
+
+        /// <summary>
         /// All machines including drafts/archived — for the admin inventory view. Requires login.
         /// GET /api/machines/admin/all
         /// </summary>

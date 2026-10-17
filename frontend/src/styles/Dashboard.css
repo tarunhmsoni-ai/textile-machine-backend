@@ -739,6 +739,94 @@
   }
 }
 
+/* ============================================
+   KPI Dashboard (real, API-backed)
+   ============================================ */
+.dash .kpi-dash__toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dash .kpi-dash__toolbar select {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+}
+
+.dash .kpi-dash__range-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dash .kpi-dash__range-form input {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+}
+
+.dash .btn.small {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+}
+
+.dash .kpi-dash__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.dash .kpi-dash__card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.1rem;
+  text-align: center;
+}
+
+.dash .kpi-dash__value {
+  font-family: var(--font-display, 'Oswald', sans-serif);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--pri);
+}
+
+.dash .kpi-dash__label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.3rem;
+}
+
+.dash .kpi-dash__section-title {
+  font-size: 1rem;
+  margin: 1.5rem 0 0.75rem;
+  color: var(--text);
+}
+
+.dash .kpi-dash__contact-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.dash .kpi-dash__contact-form select,
+.dash .kpi-dash__contact-form input {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 0.55rem 0.7rem;
+  border-radius: 6px;
+  flex: 1 1 150px;
+}
+
 @media (max-width: 520px) {
   .dash .cards,
   .dash .form,

@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import apiClient from '../../services/apiClient';
 
-// Mirrors MachineProjectAPI.Models.LeadStatus / ActivityTypes — keep in sync with the backend.
+// Mirrors MachineProjectAPI.Models.LeadStatus / ActivityTypes / MarketingChannels — keep in sync with the backend.
 const STAGES = ['New', 'Qualified', 'Contacted', 'Factory Visit', 'Negotiation', 'Won', 'Lost'];
 const ACTIVITY_TYPES = [
   'Phone Call', 'WhatsApp', 'Email', 'Factory Visit', 'Direct Meeting', 'Marketing Post', 'Negotiation', 'Deal', 'Other',
+];
+// Fixed channel list so the KPI dashboard's "WhatsApp Broadcast" count matches exactly.
+const MARKETING_CHANNELS = [
+  'WhatsApp Status', 'WhatsApp Broadcast', 'Facebook Group', 'Facebook Page',
+  'Instagram Page', 'YouTube', 'Phone Call', 'Direct Outreach', 'Other',
 ];
 
 export function LeadsPipeline({ onToast }) {
@@ -162,11 +167,15 @@ export function LeadsPipeline({ onToast }) {
                   <option key={t} value={t}>{t}</option>
                 ))}
               </select>
-              <input
-                placeholder="Channel (WhatsApp Broadcast, Facebook Group...)"
+              <select
                 value={activityForm.channel}
                 onChange={(e) => setActivityForm((f) => ({ ...f, channel: e.target.value }))}
-              />
+              >
+                <option value="">Channel (optional)</option>
+                {MARKETING_CHANNELS.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
               <input
                 placeholder="Notes"
                 value={activityForm.description}

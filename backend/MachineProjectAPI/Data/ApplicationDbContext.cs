@@ -16,6 +16,7 @@ namespace MachineProjectAPI.Data
         public DbSet<LeadActivity> LeadActivities { get; set; } = null!;
         public DbSet<ReferralPartner> ReferralPartners { get; set; } = null!;
         public DbSet<KPI> KPIs { get; set; } = null!;
+        public DbSet<Contact> Contacts { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -105,6 +106,9 @@ namespace MachineProjectAPI.Data
 
             modelBuilder.Entity<ReferralPartner>()
                 .HasIndex(rp => rp.IsActive);
+
+            modelBuilder.Entity<Contact>()
+                .HasIndex(c => c.ContactType);
         }
     }
 }
