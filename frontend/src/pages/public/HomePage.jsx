@@ -30,8 +30,6 @@ const MACHINE_TYPES = [
   },
 ];
 
-const TRUST_INDICATORS = ['VERIFIED LISTINGS', 'SMART SEARCH', 'INDUSTRIAL MARKETPLACE'];
-
 const PIPELINE_STEPS = [
   { n: '01', label: 'LIST', copy: 'Submit your machinery details.' },
   { n: '02', label: 'VERIFY', copy: 'Listing is reviewed and verified.' },
@@ -263,56 +261,10 @@ const HomePage = () => {
         </motion.div>
 
         <motion.div className="ind-hero__content" style={{ opacity: contentOpacity }}>
-          <motion.h1 initial="hidden" animate="show" variants={fadeUp} className="ind-hero__headline">
-            FIND THE <span className="ind-accent">MACHINE</span>
-            <br />
-            THAT BUILDS
-            <br />
-            YOUR <span className="ind-accent">NEXT BIG MOVE.</span>
-          </motion.h1>
-
           <motion.p
             initial="hidden"
             animate="show"
             variants={fadeUp}
-            transition={{ delay: 0.1 }}
-            className="ind-hero__subcopy"
-          >
-            Discover verified pre-owned industrial machinery from trusted sellers. Search, evaluate and connect —
-            all from one intelligent marketplace.
-          </motion.p>
-
-          <motion.div
-            initial="hidden"
-            animate="show"
-            variants={fadeUp}
-            transition={{ delay: 0.2 }}
-            className="ind-hero__actions"
-          >
-            <AnimatedButton variant="primary" onClick={() => navigate('/machines')}>
-              EXPLORE MACHINES
-            </AnimatedButton>
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            animate="show"
-            variants={fadeUp}
-            transition={{ delay: 0.3 }}
-            className="ind-hero__trust"
-          >
-            {TRUST_INDICATORS.map((t) => (
-              <span key={t} className="ind-hero__trust-item">
-                {t}
-              </span>
-            ))}
-          </motion.div>
-
-          <motion.p
-            initial="hidden"
-            animate="show"
-            variants={fadeUp}
-            transition={{ delay: 0.4 }}
             className="ind-hero__sell-note"
           >
             Have a machine to sell?{' '}

@@ -98,12 +98,11 @@
 /* ================= Hero ================= */
 .ind-hero {
   position: relative;
-  min-height: 96vh;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  padding: 7rem 2rem 4rem;
+  padding: 2.5rem 2rem;
 }
 
 .ind-hero__grid {
@@ -856,10 +855,6 @@
 }
 
 @media (max-width: 560px) {
-  .ind-hero {
-    padding-top: 6rem;
-  }
-
   .ind-timeline__track {
     grid-template-columns: 1fr;
   }
