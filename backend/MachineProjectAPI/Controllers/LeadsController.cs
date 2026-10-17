@@ -325,6 +325,32 @@ namespace MachineProjectAPI.Controllers
             });
         }
 
+        /// <summary>
+        /// Remove a logged activity (e.g. a test/mistaken entry) — also rolls back the
+        /// counters it affected so the KPI dashboard stays accurate.
+        /// DELETE /api/leads/{id}/activities/{activityId}
+        /// </summary>
+        [HttpDelete("{id:int}/activities/{activityId:int}")]
+        public async Task<ActionResult> DeleteActivity(int id, int activityId)
+        {
+            var activity = await _context.LeadActivities.FirstOrDefaultAsync(a => a.Id == activityId && a.LeadId == id);
+            if (activity == null) return NotFound(new { message = "Activity not found." });
+
+            var lead = await _context.Leads.FirstOrDefaultAsync(l => l.Id == id);
+            if (lead != null)
+            {
+                lead.FollowUpCount = Math.Max(0, lead.FollowUpCount - 1);
+                if (activity.ActivityType == ActivityTypes.PhoneCall)
+                {
+                    lead.PhoneCallCount = Math.Max(0, lead.PhoneCallCount - 1);
+                }
+            }
+
+            _context.LeadActivities.Remove(activity);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
         private static LeadDto ToDto(Lead l, bool includeActivities = false) => new LeadDto
         {
             Id = l.Id,
