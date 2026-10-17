@@ -7,7 +7,6 @@ import HomePage from './pages/public/HomePage';
 import MachineListings from './pages/public/MachineListings';
 import MachineDetail from './pages/public/MachineDetail';
 import PostMachine from './pages/admin/PostMachine';
-import IndustrialLoader from './components/IndustrialLoader';
 import CustomCursor from './components/CustomCursor';
 
 function App() {
@@ -30,7 +29,6 @@ function App() {
 
   return (
     <Router>
-      <IndustrialLoader />
       <CustomCursor />
       <Routes>
         {/* Public Routes */}

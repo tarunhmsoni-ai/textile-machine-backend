@@ -201,6 +201,60 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* ---------- Featured Machinery (shown first, before the hero copy) ---------- */}
+      {featured.length > 0 && (
+        <section className="ind-featured ind-featured--top" id="machines">
+          <motion.h2
+            className="ind-section-title ind-section-title--center"
+            initial="hidden"
+            animate="show"
+            variants={fadeUp}
+          >
+            FEATURED <span className="ind-accent">MACHINERY</span>
+          </motion.h2>
+
+          <div className="ind-featured__grid">
+            {featured.map((m, i) => (
+              <motion.div
+                key={m.id}
+                className="ind-machine-card"
+                initial="hidden"
+                animate="show"
+                variants={fadeUp}
+                transition={{ delay: i * 0.1 }}
+              >
+                <div className="ind-machine-card__image">
+                  <img src={m.photo} alt={`${m.brand} ${m.model}`} />
+                  <span className="ind-machine-card__badge">{m.subtype}</span>
+                  <button
+                    className="ind-machine-card__share"
+                    onClick={() => handleShare(m)}
+                    aria-label="Share this machine"
+                    title="Share"
+                  >
+                    ⤴
+                  </button>
+                </div>
+                <div className="ind-machine-card__body">
+                  <h3>
+                    {m.year} {m.brand} {m.model}
+                  </h3>
+                  <p className="ind-machine-card__meta">
+                    {m.subtype} · {m.location}
+                  </p>
+                  <p className="ind-machine-card__price">Price On Request</p>
+                  <div className="ind-machine-card__actions">
+                    <AnimatedButton variant="ghost" onClick={() => navigate(`/machines/${m.id}`)}>
+                      VIEW DETAILS
+                    </AnimatedButton>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* ---------- Hero ---------- */}
       <section className="ind-hero" ref={heroRef}>
         <div className="ind-hero__grid" />
@@ -306,62 +360,6 @@ const HomePage = () => {
           </AnimatedButton>
         </motion.div>
       </section>
-
-      {/* ---------- Featured Machinery ---------- */}
-      {featured.length > 0 && (
-        <section className="ind-featured" id="machines">
-          <motion.h2
-            className="ind-section-title ind-section-title--center"
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.4 }}
-            variants={fadeUp}
-          >
-            FEATURED <span className="ind-accent">MACHINERY</span>
-          </motion.h2>
-
-          <div className="ind-featured__grid">
-            {featured.map((m, i) => (
-              <motion.div
-                key={m.id}
-                className="ind-machine-card"
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, amount: 0.3 }}
-                variants={fadeUp}
-                transition={{ delay: i * 0.1 }}
-              >
-                <div className="ind-machine-card__image">
-                  <img src={m.photo} alt={`${m.brand} ${m.model}`} />
-                  <span className="ind-machine-card__badge">{m.subtype}</span>
-                  <button
-                    className="ind-machine-card__share"
-                    onClick={() => handleShare(m)}
-                    aria-label="Share this machine"
-                    title="Share"
-                  >
-                    ⤴
-                  </button>
-                </div>
-                <div className="ind-machine-card__body">
-                  <h3>
-                    {m.year} {m.brand} {m.model}
-                  </h3>
-                  <p className="ind-machine-card__meta">
-                    {m.subtype} · {m.location}
-                  </p>
-                  <p className="ind-machine-card__price">Price On Request</p>
-                  <div className="ind-machine-card__actions">
-                    <AnimatedButton variant="ghost" onClick={() => navigate(`/machines/${m.id}`)}>
-                      VIEW DETAILS
-                    </AnimatedButton>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* ---------- Categories ---------- */}
       <section className="ind-categories" id="categories">

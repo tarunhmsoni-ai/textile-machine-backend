@@ -3,6 +3,106 @@ import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/apiClient';
 import './PostMachine.css';
 
+const machineTypes = {
+  knitting: ['Warp Knitting', 'Circular Knitting', 'Flat Knitting', 'Beams'],
+  weaving: ['Waterjet Loom', 'Airjet Loom', 'Rapier Loom', 'Power Loom'],
+  warping: ['Direct Warping', 'Split Warping', 'Beamer']
+};
+
+// Specification fields per machine sub-type, as supplied by the client
+// (Machine Categories.docx). Each sub-type has its own set of extra
+// parameters in addition to the common fields (Brand, Model, Year,
+// Location, Asking Price, Number of Machines) already captured above.
+const WEAVING_LOOM_FIELDS = [
+  { key: 'subSubType', label: 'Sub Sub Type' },
+  { key: 'width', label: 'Width' },
+  { key: 'numberOfHealdFrames', label: 'Number of Heald Frames' },
+  { key: 'feeder', label: 'Feeder' },
+  { key: 'plainCamDobby', label: 'Plain / Cam or Dobby' },
+  { key: 'other1', label: 'Other 1' },
+  { key: 'other2', label: 'Other 2' },
+  { key: 'other3', label: 'Other 3' },
+];
+
+const SPEC_FIELDS = {
+  'Warp Knitting': [
+    { key: 'subSubType', label: 'Sub Sub Type' },
+    { key: 'width', label: 'Width' },
+    { key: 'numberOfBars', label: 'Number of Bars' },
+    { key: 'needleBarType', label: 'Needle Bar (Single/Double)' },
+    { key: 'gauge', label: 'Gauge', placeholder: 'e.g., E28' },
+    { key: 'needleNumber', label: 'Needle Number', placeholder: 'e.g., 51.50' },
+    { key: 'chainLinking', label: 'Chain Linking (Disk/EL)' },
+    { key: 'other', label: 'Other' },
+  ],
+  'Circular Knitting': [
+    { key: 'subSubType', label: 'Sub Sub Type' },
+    { key: 'dia', label: 'Dia' },
+    { key: 'gauge', label: 'Gauge', placeholder: 'e.g., E28' },
+    { key: 'feeder', label: 'Feeder', placeholder: 'e.g., 168' },
+    { key: 'needleNumber', label: 'Needle Number' },
+    { key: 'other1', label: 'Other 1' },
+    { key: 'other2', label: 'Other 2' },
+    { key: 'other3', label: 'Other 3' },
+  ],
+  'Flat Knitting': [
+    { key: 'subSubType', label: 'Sub Sub Type' },
+    { key: 'width', label: 'Width' },
+    { key: 'system', label: 'System' },
+    { key: 'gauge', label: 'Gauge', placeholder: 'e.g., E28' },
+    { key: 'numberOfCarriage', label: 'Number of Carriage' },
+    { key: 'sinker', label: 'Sinker' },
+    { key: 'transfer', label: 'Transfer' },
+    { key: 'other1', label: 'Other 1' },
+    { key: 'other2', label: 'Other 2' },
+    { key: 'other3', label: 'Other 3' },
+  ],
+  Beams: [
+    { key: 'subSubType', label: 'Sub Sub Type' },
+    { key: 'size', label: 'Size' },
+    { key: 'weight', label: 'Weight' },
+    { key: 'other1', label: 'Other 1' },
+    { key: 'other2', label: 'Other 2' },
+    { key: 'other3', label: 'Other 3' },
+  ],
+  'Waterjet Loom': WEAVING_LOOM_FIELDS,
+  'Airjet Loom': WEAVING_LOOM_FIELDS,
+  'Rapier Loom': WEAVING_LOOM_FIELDS,
+  'Power Loom': WEAVING_LOOM_FIELDS,
+  'Direct Warping': [
+    { key: 'subSubType', label: 'Sub Sub Type' },
+    { key: 'ends', label: 'Ends' },
+    { key: 'lines', label: 'Lines' },
+    { key: 'other1', label: 'Other 1' },
+    { key: 'other2', label: 'Other 2' },
+    { key: 'other3', label: 'Other 3' },
+  ],
+  'Split Warping': [
+    { key: 'subSubType', label: 'Sub Sub Type' },
+    { key: 'numberOfCreel', label: 'Number of Creel' },
+    { key: 'other1', label: 'Other 1' },
+    { key: 'other2', label: 'Other 2' },
+    { key: 'other3', label: 'Other 3' },
+  ],
+  Beamer: [],
+};
+
+const getSpecFields = (subType) => SPEC_FIELDS[subType] || [];
+
+const buildSpecTemplate = (subType) => {
+  const template = { condition: 'Good' };
+  getSpecFields(subType).forEach((f) => {
+    template[f.key] = '';
+  });
+  return template;
+};
+
+const chunkPairs = (arr) => {
+  const pairs = [];
+  for (let i = 0; i < arr.length; i += 2) pairs.push(arr.slice(i, i + 2));
+  return pairs;
+};
+
 const PostMachine = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -19,27 +119,17 @@ const PostMachine = () => {
     model: '',
     year: new Date().getFullYear(),
     location: '',
+    askingPrice: '',
+    quantity: 1,
     description: '',
     sellerName: '',
     sellerPhone: '',
     sellerEmail: '',
     sellerWhatsApp: '',
-    specifications: {
-      gauge: '',
-      width: '',
-      needleNumber: '',
-      feeders: '',
-      rpm: '',
-      powerRating: '',
-      condition: 'Good'
-    }
+    specifications: buildSpecTemplate(''),
   });
 
-  const machineTypes = {
-    knitting: ['Warp Knitting', 'Circular Knitting', 'Flat Knitting', 'Beams'],
-    weaving: ['Waterjet Loom', 'Airjet Loom', 'Rapier Loom', 'Power Loom'],
-    warping: ['Direct Warping', 'Split Warping', 'Beamer']
-  };
+  const specFields = getSpecFields(formData.subType);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -122,13 +212,20 @@ const PostMachine = () => {
       fd.append('Model', formData.model);
       fd.append('Year', formData.year);
       fd.append('Location', formData.location);
+      fd.append('AskingPrice', formData.askingPrice || '0');
+      fd.append('Quantity', formData.quantity || '1');
       fd.append('Description', formData.description);
       fd.append('Condition', formData.specifications.condition);
       fd.append('SellerName', formData.sellerName);
       fd.append('SellerPhone', formData.sellerPhone);
       fd.append('SellerEmail', formData.sellerEmail);
       fd.append('SellerWhatsApp', formData.sellerWhatsApp);
-      fd.append('SpecificationsJson', JSON.stringify(formData.specifications));
+      // Only persist the parameters the admin actually filled in — per the
+      // client's spec, unfilled fields should never surface to the customer.
+      const filledSpecs = Object.fromEntries(
+        Object.entries(formData.specifications).filter(([, v]) => v !== '' && v != null)
+      );
+      fd.append('SpecificationsJson', JSON.stringify(filledSpecs));
       uploadedPhotos.forEach((p) => fd.append('Photos', p.file));
       if (uploadedVideo) fd.append('Video', uploadedVideo.file);
 
@@ -145,20 +242,14 @@ const PostMachine = () => {
         model: '',
         year: new Date().getFullYear(),
         location: '',
+        askingPrice: '',
+        quantity: 1,
         description: '',
         sellerName: '',
         sellerPhone: '',
         sellerEmail: '',
         sellerWhatsApp: '',
-        specifications: {
-          gauge: '',
-          width: '',
-          needleNumber: '',
-          feeders: '',
-          rpm: '',
-          powerRating: '',
-          condition: 'Good'
-        }
+        specifications: buildSpecTemplate(''),
       });
       setUploadedPhotos([]);
       setUploadedVideo(null);
@@ -218,7 +309,14 @@ const PostMachine = () => {
                 <label>Sub Type *</label>
                 <select
                   value={formData.subType}
-                  onChange={(e) => handleInputChange('subType', e.target.value)}
+                  onChange={(e) => {
+                    const subType = e.target.value;
+                    setFormData((prev) => ({
+                      ...prev,
+                      subType,
+                      specifications: buildSpecTemplate(subType),
+                    }));
+                  }}
                   required
                 >
                   <option value="">Select Sub Type</option>
@@ -280,6 +378,29 @@ const PostMachine = () => {
               </div>
             </div>
 
+            <div className="form-row">
+              <div className="form-group">
+                <label>Asking Price (₹)</label>
+                <input
+                  type="number"
+                  value={formData.askingPrice}
+                  onChange={(e) => handleInputChange('askingPrice', e.target.value)}
+                  placeholder="e.g., 2300000"
+                  min="0"
+                />
+              </div>
+              <div className="form-group">
+                <label>Number of Machines</label>
+                <input
+                  type="number"
+                  value={formData.quantity}
+                  onChange={(e) => handleInputChange('quantity', e.target.value)}
+                  placeholder="e.g., 1"
+                  min="1"
+                />
+              </div>
+            </div>
+
             <div className="form-group">
               <label>Description</label>
               <textarea
@@ -291,71 +412,33 @@ const PostMachine = () => {
             </div>
           </section>
 
-          {/* Specifications Section */}
+          {/* Specifications Section — fields change based on the selected Sub Type */}
           <section className="form-section">
             <h2>Specifications</h2>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Gauge (E)</label>
-                <input
-                  type="text"
-                  value={formData.specifications.gauge}
-                  onChange={(e) => handleSpecChange('gauge', e.target.value)}
-                  placeholder="e.g., E28"
-                />
-              </div>
-              <div className="form-group">
-                <label>Width (inch)</label>
-                <input
-                  type="text"
-                  value={formData.specifications.width}
-                  onChange={(e) => handleSpecChange('width', e.target.value)}
-                  placeholder="e.g., 210"
-                />
-              </div>
-            </div>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label>Needle Number</label>
-                <input
-                  type="text"
-                  value={formData.specifications.needleNumber}
-                  onChange={(e) => handleSpecChange('needleNumber', e.target.value)}
-                  placeholder="e.g., 51.50"
-                />
-              </div>
-              <div className="form-group">
-                <label>Feeders</label>
-                <input
-                  type="text"
-                  value={formData.specifications.feeders}
-                  onChange={(e) => handleSpecChange('feeders', e.target.value)}
-                  placeholder="e.g., 168"
-                />
-              </div>
-            </div>
+            {!formData.subType && (
+              <p className="info-text">Select a Machine Type and Sub Type above to see its specific fields.</p>
+            )}
 
-            <div className="form-row">
-              <div className="form-group">
-                <label>RPM</label>
-                <input
-                  type="text"
-                  value={formData.specifications.rpm}
-                  onChange={(e) => handleSpecChange('rpm', e.target.value)}
-                  placeholder="e.g., 35"
-                />
+            {formData.subType && specFields.length === 0 && (
+              <p className="info-text">No additional specification fields for this sub type.</p>
+            )}
+
+            {chunkPairs(specFields).map((pair) => (
+              <div className="form-row" key={pair.map((f) => f.key).join('-')}>
+                {pair.map((f) => (
+                  <div className="form-group" key={f.key}>
+                    <label>{f.label}</label>
+                    <input
+                      type="text"
+                      value={formData.specifications[f.key] || ''}
+                      onChange={(e) => handleSpecChange(f.key, e.target.value)}
+                      placeholder={f.placeholder || ''}
+                    />
+                  </div>
+                ))}
               </div>
-              <div className="form-group">
-                <label>Power Rating</label>
-                <input
-                  type="text"
-                  value={formData.specifications.powerRating}
-                  onChange={(e) => handleSpecChange('powerRating', e.target.value)}
-                  placeholder="e.g., 15 KW"
-                />
-              </div>
-            </div>
+            ))}
 
             <div className="form-group">
               <label>Condition</label>

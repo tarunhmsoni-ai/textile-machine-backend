@@ -160,6 +160,7 @@ namespace MachineProjectAPI.Controllers
                 Year = request.Year,
                 Location = request.Location,
                 AskingPrice = request.AskingPrice,
+                Quantity = request.Quantity <= 0 ? 1 : request.Quantity,
                 Description = request.Description,
                 Condition = string.IsNullOrWhiteSpace(request.Condition) ? "Good" : request.Condition,
                 SellerName = request.SellerName,
@@ -202,6 +203,7 @@ namespace MachineProjectAPI.Controllers
             machine.Year = request.Year;
             machine.Location = request.Location;
             machine.AskingPrice = request.AskingPrice;
+            machine.Quantity = request.Quantity <= 0 ? machine.Quantity : request.Quantity;
             machine.Description = request.Description;
             machine.Condition = string.IsNullOrWhiteSpace(request.Condition) ? machine.Condition : request.Condition;
             machine.SellerName = request.SellerName;
@@ -410,6 +412,7 @@ namespace MachineProjectAPI.Controllers
                 },
                 Specifications = specs,
                 Price = m.AskingPrice,
+                Quantity = m.Quantity,
                 Status = m.Status,
             };
         }

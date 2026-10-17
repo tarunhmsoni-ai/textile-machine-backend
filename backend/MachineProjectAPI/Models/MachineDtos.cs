@@ -34,6 +34,7 @@ namespace MachineProjectAPI.Models
         public SellerDto Seller { get; set; } = new();
         public Dictionary<string, string> Specifications { get; set; } = new();
         public decimal Price { get; set; }
+        public int Quantity { get; set; } = 1;
         public string Status { get; set; } = string.Empty;
     }
 
@@ -55,6 +56,7 @@ namespace MachineProjectAPI.Models
         public int Year { get; set; }
         public string Location { get; set; } = string.Empty;
         public decimal AskingPrice { get; set; }
+        public int Quantity { get; set; } = 1;
         public string Description { get; set; } = string.Empty;
         public string Condition { get; set; } = "Good";
         public string SellerName { get; set; } = string.Empty;

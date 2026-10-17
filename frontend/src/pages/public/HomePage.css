@@ -397,6 +397,13 @@
   padding: 5rem 2rem;
 }
 
+/* Shown immediately below the search bar, before the hero copy, so a
+   visitor sees real machine photos/details first instead of text. */
+.ind-featured--top {
+  border-top: none;
+  padding-top: 2.5rem;
+}
+
 .ind-featured__grid {
   max-width: 1300px;
   margin: 2.5rem auto 0;
