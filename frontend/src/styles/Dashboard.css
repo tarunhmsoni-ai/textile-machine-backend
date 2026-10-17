@@ -538,6 +538,207 @@
   }
 }
 
+/* ============================================
+   Leads & Pipeline (real, API-backed)
+   ============================================ */
+.dash .leads-pipeline__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.dash .leads-pipeline__toolbar select {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+}
+
+.dash .leads-pipeline__board {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(200px, 1fr));
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.dash .leads-pipeline__column {
+  background: var(--dark2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.75rem;
+  min-width: 200px;
+}
+
+.dash .leads-pipeline__column h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+}
+
+.dash .leads-pipeline__count {
+  background: var(--pri);
+  color: #080808;
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  display: inline-grid;
+  place-items: center;
+}
+
+.dash .leads-pipeline__card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.6rem 0.7rem;
+  margin-bottom: 0.6rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.dash .leads-pipeline__card:hover {
+  border-color: var(--pri);
+}
+
+.dash .leads-pipeline__card b {
+  display: block;
+  font-size: 0.85rem;
+  margin-bottom: 0.2rem;
+}
+
+.dash .leads-pipeline__tag {
+  margin-top: 0.3rem;
+  font-size: 0.72rem;
+  color: var(--pri);
+}
+
+.dash .leads-pipeline__empty-col {
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+.dash .leads-pipeline__detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 900;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3rem 1rem;
+  overflow-y: auto;
+}
+
+.dash .leads-pipeline__detail {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1.75rem;
+  max-width: 560px;
+  width: 100%;
+}
+
+.dash .leads-pipeline__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.dash .leads-pipeline__stage-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 1rem 0;
+}
+
+.dash .leads-pipeline__stage-row select {
+  background: var(--dark2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+}
+
+.dash .leads-pipeline__stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.dash .leads-pipeline__activity-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.dash .leads-pipeline__activity-form select,
+.dash .leads-pipeline__activity-form input {
+  background: var(--dark2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
+  flex: 1 1 140px;
+}
+
+.dash .leads-pipeline__activity-list {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.dash .leads-pipeline__activity-list li {
+  border-bottom: 1px solid var(--line);
+  padding: 0.5rem 0;
+  font-size: 0.85rem;
+}
+
+.dash .leads-pipeline__mark-sold {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dash .leads-pipeline__mark-sold input {
+  flex: 1;
+  background: var(--dark2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
+}
+
+@media (max-width: 1100px) {
+  .dash .leads-pipeline__board {
+    grid-template-columns: repeat(4, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .dash .leads-pipeline__board {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+  }
+}
+
 @media (max-width: 520px) {
   .dash .cards,
   .dash .form,

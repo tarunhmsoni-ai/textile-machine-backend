@@ -117,12 +117,25 @@ const HomePage = () => {
     setTimeout(() => setNewsletterDone(false), 4000);
   };
 
-  const handleContactSubmit = (e) => {
+  const [contactError, setContactError] = useState('');
+
+  const handleContactSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Send contact enquiry to backend
-    setContactDone(true);
-    e.target.reset();
-    setTimeout(() => setContactDone(false), 4000);
+    setContactError('');
+    const fd = new FormData(e.target);
+    try {
+      await apiClient.post('/leads/public', {
+        name: fd.get('name'),
+        email: fd.get('email'),
+        phone: fd.get('phone'),
+        message: fd.get('message'),
+      });
+      setContactDone(true);
+      e.target.reset();
+      setTimeout(() => setContactDone(false), 4000);
+    } catch {
+      setContactError('Could not send your message right now. Please try WhatsApp or phone instead.');
+    }
   };
 
   const scrollTo = (id) => {
@@ -492,10 +505,11 @@ const HomePage = () => {
           <p className="ind-newsletter__success">✓ Message sent — we'll be in touch shortly.</p>
         ) : (
           <form className="ind-contact__form" onSubmit={handleContactSubmit}>
-            <input type="text" placeholder="Your Name" required />
-            <input type="email" placeholder="Your Email" required />
-            <input type="tel" placeholder="Your Phone" />
-            <textarea placeholder="Your Message" rows="5" required />
+            {contactError && <p className="ind-contact__error">{contactError}</p>}
+            <input type="text" name="name" placeholder="Your Name" required />
+            <input type="email" name="email" placeholder="Your Email" required />
+            <input type="tel" name="phone" placeholder="Your Phone" />
+            <textarea name="message" placeholder="Your Message" rows="5" required />
             <AnimatedButton type="submit" variant="primary" icon={null}>
               Send Message
             </AnimatedButton>

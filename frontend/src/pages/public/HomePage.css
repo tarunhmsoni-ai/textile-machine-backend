@@ -714,6 +714,13 @@
   letter-spacing: 0.03em;
 }
 
+.ind-contact__error {
+  color: #b91c1c;
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 0 0 0.5rem;
+}
+
 /* ================= Contact ================= */
 .ind-contact {
   padding: 5rem 2rem;

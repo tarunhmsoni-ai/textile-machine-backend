@@ -455,6 +455,13 @@
   padding: 0.5rem 0;
 }
 
+.inline-contact-form__error {
+  color: #b91c1c;
+  font-size: 0.8rem;
+  text-align: center;
+  margin: 0;
+}
+
 .submit-form-btn {
   min-height: 44px;
   background: var(--accent-copper);

@@ -108,15 +108,28 @@ const MachineDetail = () => {
     setFormData({ ...formData, [field]: value });
   };
 
-  const handleContactSubmit = (e) => {
+  const [contactError, setContactError] = useState('');
+
+  const handleContactSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Send enquiry to backend
-    setContactSent(true);
-    setFormData({ name: '', email: '', phone: '', message: '' });
-    setTimeout(() => {
-      setContactSent(false);
-      setShowContactForm(false);
-    }, 2500);
+    setContactError('');
+    try {
+      await apiClient.post('/leads/public', {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message,
+        machineId: machine?.id,
+      });
+      setContactSent(true);
+      setFormData({ name: '', email: '', phone: '', message: '' });
+      setTimeout(() => {
+        setContactSent(false);
+        setShowContactForm(false);
+      }, 2500);
+    } catch {
+      setContactError('Could not send your enquiry right now. Please try WhatsApp or phone instead.');
+    }
   };
 
   const whatsappMessage = machine
@@ -329,6 +342,7 @@ const MachineDetail = () => {
                 <p className="inline-contact-form__success">✓ Sent — the seller will be in touch shortly.</p>
               ) : (
                 <form className="inline-contact-form" onSubmit={handleContactSubmit}>
+                  {contactError && <p className="inline-contact-form__error">{contactError}</p>}
                   <input
                     type="text"
                     placeholder="Your Name"

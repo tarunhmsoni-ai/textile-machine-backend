@@ -7,19 +7,19 @@ import {
   DashboardHome,
   Submissions,
   Machines,
-  Inquiries,
   Matching,
   Clients,
   Deals,
   Followups,
 } from './DashboardPages';
-import { SellerFormModal, SellerFormSidebar, SellerFormPage, ReviewModal, InquiryModal, DealModal } from './DashboardModals';
+import { LeadsPipeline } from './DashboardLeads';
+import { SellerFormModal, SellerFormSidebar, SellerFormPage, ReviewModal, DealModal } from './DashboardModals';
 
 const NAV_ITEMS = [
   { id: 'dashboard', label: '🏠 Dashboard' },
   { id: 'submissions', label: '📥 Seller Submissions' },
   { id: 'machines', label: '🏭 Machine Inventory' },
-  { id: 'inquiries', label: '📞 Inquiry Tracker' },
+  { id: 'leads', label: '🧭 Leads & Pipeline' },
   { id: 'matching', label: '🔎 Machine Matching' },
   { id: 'clients', label: '👥 Sellers & Buyers' },
   { id: 'deals', label: '🤝 Deals & Brokerage' },
@@ -46,7 +46,6 @@ export default function Dashboard({ onLogout }) {
   const [sellerFormOpen, setSellerFormOpen] = useState(false);
   const [sellerFormLayout, setSellerFormLayout] = useState('modal'); // 'modal', 'sidebar', or 'page'
   const [reviewSubmission, setReviewSubmission] = useState(null);
-  const [inquiryModalOpen, setInquiryModalOpen] = useState(false);
   const [dealModalOpen, setDealModalOpen] = useState(false);
   const toastTimer = useRef(null);
 
@@ -246,13 +245,7 @@ export default function Dashboard({ onLogout }) {
             <Submissions submissions={submissions} onReview={setReviewSubmission} />
           )}
           {activePage === 'machines' && <Machines machines={machines} onDelete={handleDeleteMachine} />}
-          {activePage === 'inquiries' && (
-            <Inquiries
-              onFindMatch={() => setActivePage('matching')}
-              onTrack={showToast}
-              onNewInquiry={() => setInquiryModalOpen(true)}
-            />
-          )}
+          {activePage === 'leads' && <LeadsPipeline onToast={showToast} />}
           {activePage === 'matching' && (
             <Matching onSelectMatch={() => showToast('Machine linked and marked as shown')} />
           )}
@@ -288,14 +281,6 @@ export default function Dashboard({ onLogout }) {
         onClose={() => setReviewSubmission(null)}
         onApprove={handleApprove}
         onReject={handleReject}
-      />
-      <InquiryModal
-        open={inquiryModalOpen}
-        onClose={() => setInquiryModalOpen(false)}
-        onCreate={() => {
-          setInquiryModalOpen(false);
-          showToast('Inquiry created');
-        }}
       />
       <DealModal
         open={dealModalOpen}
