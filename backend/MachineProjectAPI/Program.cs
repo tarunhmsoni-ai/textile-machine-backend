@@ -67,6 +67,9 @@ builder.Services.AddScoped<TokenService>();
 // Add OCR service for nameplate extraction
 builder.Services.AddScoped<IOcrService, OcrService>();
 
+// Durable file storage — Render's own disk is wiped on every deploy/restart
+builder.Services.AddScoped<IUploadService, CloudinaryUploadService>();
+
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtSecretKey = jwtSection["SecretKey"]!;
 

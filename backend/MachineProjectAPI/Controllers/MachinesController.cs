@@ -14,7 +14,7 @@ namespace MachineProjectAPI.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IOcrService _ocrService;
-        private readonly IWebHostEnvironment _env;
+        private readonly IUploadService _uploadService;
         private readonly ILogger<MachinesController> _logger;
 
         private static readonly string[] AllowedImageTypes = { "image/jpeg", "image/png", "image/webp", "image/gif" };
@@ -25,12 +25,12 @@ namespace MachineProjectAPI.Controllers
         public MachinesController(
             ApplicationDbContext context,
             IOcrService ocrService,
-            IWebHostEnvironment env,
+            IUploadService uploadService,
             ILogger<MachinesController> logger)
         {
             _context = context;
             _ocrService = ocrService;
-            _env = env;
+            _uploadService = uploadService;
             _logger = logger;
         }
 
@@ -134,7 +134,7 @@ namespace MachineProjectAPI.Controllers
             {
                 foreach (var photo in request.Photos)
                 {
-                    var url = await SaveUploadAsync(photo, "photos", AllowedImageTypes, MaxImageBytes);
+                    var url = await _uploadService.SaveAsync(photo, "photos", AllowedImageTypes, MaxImageBytes);
                     if (url == null)
                     {
                         return BadRequest(new { message = $"Invalid photo file: {photo.FileName}. Allowed: JPEG, PNG, WebP, GIF, max 8MB." });
@@ -146,7 +146,7 @@ namespace MachineProjectAPI.Controllers
             string? videoUrl = null;
             if (request.Video != null)
             {
-                videoUrl = await SaveUploadAsync(request.Video, "videos", AllowedVideoTypes, MaxVideoBytes);
+                videoUrl = await _uploadService.SaveAsync(request.Video, "videos", AllowedVideoTypes, MaxVideoBytes);
                 if (videoUrl == null)
                 {
                     return BadRequest(new { message = "Invalid video file. Allowed: MP4, WebM, MOV, max 50MB." });
@@ -234,7 +234,7 @@ namespace MachineProjectAPI.Controllers
                 var newPhotoUrls = new List<string>();
                 foreach (var photo in request.Photos)
                 {
-                    var url = await SaveUploadAsync(photo, "photos", AllowedImageTypes, MaxImageBytes);
+                    var url = await _uploadService.SaveAsync(photo, "photos", AllowedImageTypes, MaxImageBytes);
                     if (url == null)
                     {
                         return BadRequest(new { message = $"Invalid photo file: {photo.FileName}." });
@@ -246,7 +246,7 @@ namespace MachineProjectAPI.Controllers
 
             if (request.Video != null)
             {
-                var url = await SaveUploadAsync(request.Video, "videos", AllowedVideoTypes, MaxVideoBytes);
+                var url = await _uploadService.SaveAsync(request.Video, "videos", AllowedVideoTypes, MaxVideoBytes);
                 if (url == null)
                 {
                     return BadRequest(new { message = "Invalid video file." });
@@ -369,37 +369,6 @@ namespace MachineProjectAPI.Controllers
         public IActionResult Health()
         {
             return Ok(new { status = "healthy", service = "Machines API", timestamp = DateTime.UtcNow });
-        }
-
-        private async Task<string?> SaveUploadAsync(IFormFile file, string subfolder, string[] allowedTypes, long maxBytes)
-        {
-            if (file.Length == 0 || file.Length > maxBytes)
-            {
-                return null;
-            }
-
-            if (!allowedTypes.Contains(file.ContentType))
-            {
-                return null;
-            }
-
-            var webRoot = string.IsNullOrEmpty(_env.WebRootPath)
-                ? Path.Combine(_env.ContentRootPath, "wwwroot")
-                : _env.WebRootPath;
-
-            var uploadsDir = Path.Combine(webRoot, "uploads", subfolder);
-            Directory.CreateDirectory(uploadsDir);
-
-            var safeExt = Path.GetExtension(file.FileName);
-            var fileName = $"{Guid.NewGuid():N}{safeExt}";
-            var fullPath = Path.Combine(uploadsDir, fileName);
-
-            using (var stream = new FileStream(fullPath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            return $"/uploads/{subfolder}/{fileName}";
         }
 
         private static MachineListDto ToListDto(Machine m) => new MachineListDto
