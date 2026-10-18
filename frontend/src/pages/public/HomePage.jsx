@@ -7,7 +7,7 @@ import GearLogo from '../../components/GearLogo';
 import AnimatedButton from '../../components/AnimatedButton';
 import WhatsAppIcon from '../../components/WhatsAppIcon';
 import apiClient, { resolveMediaUrl } from '../../services/apiClient';
-import { SAMPLE_MACHINES } from '../../data/sampleMachines';
+import { onImageError } from '../../utils/imageFallback';
 import './HomePage.css';
 
 const MACHINE_TYPES = [
@@ -74,11 +74,13 @@ const HomePage = () => {
     apiClient
       .get('/machines')
       .then((res) => {
-        const list = res.data && res.data.length ? res.data : SAMPLE_MACHINES;
+        // Never show fake/sample listings here — a buyer clicking a card
+        // expects a real machine, and a fabricated one is just a dead end.
+        const list = res.data || [];
         if (!cancelled) setFeatured(list.slice(0, 3).map((m) => ({ ...m, photo: resolveMediaUrl(m.photo) })));
       })
       .catch(() => {
-        if (!cancelled) setFeatured(SAMPLE_MACHINES);
+        if (!cancelled) setFeatured([]);
       });
     return () => {
       cancelled = true;
@@ -230,7 +232,7 @@ const HomePage = () => {
                 transition={{ delay: i * 0.1 }}
               >
                 <div className="ind-machine-card__image">
-                  <img src={m.photo} alt={`${m.brand} ${m.model}`} />
+                  <img src={m.photo} alt={`${m.brand} ${m.model}`} onError={onImageError} />
                   <span className="ind-machine-card__badge">{m.subtype}</span>
                   <button
                     className="ind-machine-card__share"

@@ -4,6 +4,7 @@ import Navbar from '../../components/Navbar';
 import CategoryBar from '../../components/CategoryBar';
 import Breadcrumb from '../../components/Breadcrumb';
 import apiClient, { resolveMediaUrl } from '../../services/apiClient';
+import { onImageError } from '../../utils/imageFallback';
 import './MachineDetail.css';
 
 // All buyer enquiries route through us, never straight to the seller —
@@ -219,7 +220,7 @@ const MachineDetail = () => {
                 {activeMedia === 'video' && machine.videoUrl ? (
                   <video src={machine.videoUrl} controls autoPlay muted loop playsInline />
                 ) : (
-                  <img src={machine.photos[activePhoto]} alt={`${machine.brand} ${machine.model}`} />
+                  <img src={machine.photos[activePhoto]} alt={`${machine.brand} ${machine.model}`} onError={onImageError} />
                 )}
                 <button
                   className="main-image__share"
@@ -248,7 +249,7 @@ const MachineDetail = () => {
                   className={`thumbnail ${activeMedia === 'photo' && activePhoto === idx ? 'active' : ''}`}
                   onClick={() => { setActiveMedia('photo'); setActivePhoto(idx); }}
                 >
-                  <img src={photo} alt={`Machine view ${idx + 1}`} />
+                  <img src={photo} alt={`Machine view ${idx + 1}`} onError={onImageError} />
                   <span className="thumbnail__badge">{idx + 1}</span>
                 </div>
               ))}

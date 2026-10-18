@@ -5,13 +5,14 @@ import apiClient, { resolveMediaUrl } from '../../services/apiClient';
 import Navbar from '../../components/Navbar';
 import CategoryBar from '../../components/CategoryBar';
 import Breadcrumb from '../../components/Breadcrumb';
-import { SAMPLE_MACHINES } from '../../data/sampleMachines';
+import { onImageError } from '../../utils/imageFallback';
 
 const MachineListings = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [machines, setMachines] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [filters, setFilters] = useState({
     type: searchParams.get('type') || '',
     search: searchParams.get('search') || '',
@@ -32,6 +33,7 @@ const MachineListings = () => {
 
   const fetchMachines = async () => {
     setLoading(true);
+    setLoadError(false);
     try {
       const params = new URLSearchParams();
       if (filters.type) params.append('type', filters.type);
@@ -44,8 +46,11 @@ const MachineListings = () => {
       const data = (response.data || []).map((m) => ({ ...m, photo: resolveMediaUrl(m.photo) }));
       setMachines(data);
     } catch (error) {
+      // Never substitute fake/sample listings for real ones here — a buyer
+      // clicking into a fake listing hits a dead end (machine not found).
       console.error('Error fetching machines:', error);
-      setMachines(SAMPLE_MACHINES);
+      setMachines([]);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -161,6 +166,11 @@ const MachineListings = () => {
         <main className="machines-grid">
           {loading ? (
             <div className="loading">Loading machines...</div>
+          ) : loadError ? (
+            <div className="no-results">
+              <p>Couldn't load listings right now — please refresh the page.</p>
+              <button onClick={() => fetchMachines()}>Retry</button>
+            </div>
           ) : machines.length === 0 ? (
             <div className="no-results">
               <p>No machines found matching your criteria</p>
@@ -176,7 +186,7 @@ const MachineListings = () => {
                   <div key={machine.id} className="machine-card">
                     <div className="machine-image">
                       <div className="machine-card__image-wrap">
-                        <img src={machine.photo} alt={`${machine.brand} ${machine.model}`} />
+                        <img src={machine.photo} alt={`${machine.brand} ${machine.model}`} onError={onImageError} />
                       </div>
                       <div className="machine-image__ribbon">
                         <span className="machine-card__badge">{machine.subtype}</span>
