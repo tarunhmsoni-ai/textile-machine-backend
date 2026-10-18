@@ -6,6 +6,14 @@ import Breadcrumb from '../../components/Breadcrumb';
 import apiClient, { resolveMediaUrl } from '../../services/apiClient';
 import './MachineDetail.css';
 
+// All buyer enquiries route through us, never straight to the seller —
+// we broker every deal, we don't just connect the two parties.
+const COMPANY_CONTACT = {
+  phone: '+919662001216',
+  whatsapp: '+919662001216',
+  email: 'nikhhilkgarg@gmail.com',
+};
+
 const FALLBACK_MACHINE = {
   id: 1,
   type: 'knitting',
@@ -133,7 +141,7 @@ const MachineDetail = () => {
   };
 
   const whatsappMessage = machine
-    ? `Hi, I'm interested in the ${machine.brand} ${machine.model} machine listed on your platform. Could you please provide more details?`
+    ? `Hi, I'm interested in the ${machine.brand} ${machine.model} machine listed on Textile Machine. Could you please provide more details?`
     : '';
 
   const handleShare = async () => {
@@ -261,7 +269,7 @@ const MachineDetail = () => {
 
             <div className="price-box">
               <p className="price-label">💬 Ask About Price</p>
-              <p className="price-text">Contact seller for pricing details</p>
+              <p className="price-text">Contact us for pricing details</p>
             </div>
 
             <div className="location-info">
@@ -293,17 +301,17 @@ const MachineDetail = () => {
         <aside className="detail-sidebar">
           <CategoryBar active={machine.type} layout="vertical" />
 
-          {/* Seller Info */}
+          {/* Enquire — every enquiry comes to us, never straight to the seller */}
           <div className="seller-card">
-            <h3>Seller Information</h3>
-            <p className="seller-name">{machine.seller.name}</p>
+            <h3>Enquire About This Machine</h3>
+            <p className="seller-name">We'll handle the deal from here to finish.</p>
 
             <div className="contact-methods">
               <h4>Contact Methods</h4>
 
               {/* WhatsApp */}
               <a
-                href={`https://wa.me/${machine.seller.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(whatsappMessage)}`}
+                href={`https://wa.me/${COMPANY_CONTACT.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(whatsappMessage)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="contact-btn whatsapp-btn"
@@ -313,7 +321,7 @@ const MachineDetail = () => {
 
               {/* Phone */}
               <a
-                href={`tel:${machine.seller.phone}`}
+                href={`tel:${COMPANY_CONTACT.phone}`}
                 className="contact-btn phone-btn"
               >
                 📞 Call Now
@@ -321,7 +329,7 @@ const MachineDetail = () => {
 
               {/* Email */}
               <a
-                href={`mailto:${machine.seller.email}`}
+                href={`mailto:${COMPANY_CONTACT.email}`}
                 className="contact-btn email-btn"
               >
                 📧 Email
@@ -339,7 +347,7 @@ const MachineDetail = () => {
             {/* Contact Form */}
             {showContactForm && (
               contactSent ? (
-                <p className="inline-contact-form__success">✓ Sent — the seller will be in touch shortly.</p>
+                <p className="inline-contact-form__success">✓ Sent — we'll be in touch shortly.</p>
               ) : (
                 <form className="inline-contact-form" onSubmit={handleContactSubmit}>
                   {contactError && <p className="inline-contact-form__error">{contactError}</p>}
@@ -392,10 +400,10 @@ const MachineDetail = () => {
           <div className="safety-card">
             <h3>Safety Tips</h3>
             <ul>
-              <li>Verify seller details before visiting</li>
-              <li>Inspect machine thoroughly</li>
+              <li>Inspect the machine thoroughly before purchase</li>
               <li>Check documentation</li>
               <li>Get warranty details</li>
+              <li>All deals are handled through us</li>
             </ul>
           </div>
         </aside>
