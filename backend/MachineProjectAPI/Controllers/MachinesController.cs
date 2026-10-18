@@ -165,7 +165,7 @@ namespace MachineProjectAPI.Controllers
                 Year = request.Year.Value,
                 Location = request.Location,
                 AskingPrice = request.AskingPrice ?? 0,
-                Quantity = request.Quantity <= 0 ? 1 : request.Quantity,
+                Quantity = (request.Quantity.HasValue && request.Quantity.Value > 0) ? request.Quantity.Value : 1,
                 Description = request.Description ?? string.Empty,
                 Condition = string.IsNullOrWhiteSpace(request.Condition) ? "Good" : request.Condition,
                 SellerName = request.SellerName,
@@ -214,7 +214,10 @@ namespace MachineProjectAPI.Controllers
             {
                 machine.AskingPrice = request.AskingPrice.Value;
             }
-            machine.Quantity = request.Quantity <= 0 ? machine.Quantity : request.Quantity;
+            if (request.Quantity.HasValue && request.Quantity.Value > 0)
+            {
+                machine.Quantity = request.Quantity.Value;
+            }
             machine.Description = request.Description ?? machine.Description;
             machine.Condition = string.IsNullOrWhiteSpace(request.Condition) ? machine.Condition : request.Condition;
             machine.SellerName = request.SellerName;

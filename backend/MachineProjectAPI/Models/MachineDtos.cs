@@ -56,7 +56,7 @@ namespace MachineProjectAPI.Models
         public int? Year { get; set; }
         public string Location { get; set; } = string.Empty;
         public decimal? AskingPrice { get; set; }
-        public int Quantity { get; set; } = 1;
+        public int? Quantity { get; set; }
         public string? Description { get; set; }
         public string Condition { get; set; } = "Good";
         public string SellerName { get; set; } = string.Empty;
