@@ -5,6 +5,7 @@ import Navbar from '../../components/Navbar';
 import CategoryBar from '../../components/CategoryBar';
 import GearLogo from '../../components/GearLogo';
 import AnimatedButton from '../../components/AnimatedButton';
+import WhatsAppIcon from '../../components/WhatsAppIcon';
 import apiClient, { resolveMediaUrl } from '../../services/apiClient';
 import { SAMPLE_MACHINES } from '../../data/sampleMachines';
 import './HomePage.css';
@@ -30,12 +31,20 @@ const MACHINE_TYPES = [
   },
 ];
 
-const PIPELINE_STEPS = [
+const BUYER_PIPELINE_STEPS = [
+  { n: '01', label: 'SEARCH', copy: 'Search for a machine on our portal.' },
+  { n: '02', label: 'ENQUIRE', copy: 'Contact us to buy the machine.' },
+  { n: '03', label: 'INSPECT', copy: 'We arrange your factory visit and machine inspection.' },
+  { n: '04', label: 'NEGOTIATE', copy: 'Negotiation.' },
+  { n: '05', label: 'DEAL', copy: 'Deal is done. We charge you a small brokerage for the deal.' },
+];
+
+const SELLER_PIPELINE_STEPS = [
   { n: '01', label: 'LIST', copy: 'Submit your machinery details.' },
   { n: '02', label: 'VERIFY', copy: 'Listing is reviewed and verified.' },
-  { n: '03', label: 'DISCOVER', copy: 'Qualified buyers discover your machinery.' },
-  { n: '04', label: 'CONNECT', copy: 'Buyer and seller communicate directly.' },
-  { n: '05', label: 'DEAL', copy: 'Complete the transaction.' },
+  { n: '03', label: 'CONNECT', copy: 'Our team connects you with genuine buyers.' },
+  { n: '04', label: 'NEGOTIATE', copy: 'Negotiations are done.' },
+  { n: '05', label: 'DEAL', copy: 'Deal is done. We charge you a small brokerage for the deal.' },
 ];
 
 const fadeUp = {
@@ -151,7 +160,7 @@ const HomePage = () => {
         className="ind-home__whatsapp-fab"
         aria-label="Chat on WhatsApp"
       >
-        💬
+        <WhatsAppIcon size={28} />
       </a>
 
       {/* Category bar + search stay frozen under the navbar while the buyer scrolls */}
@@ -344,7 +353,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* ---------- How It Works ---------- */}
+      {/* ---------- How It Works — Buyers ---------- */}
       <section className="ind-timeline">
         <motion.h2
           className="ind-section-title ind-section-title--center"
@@ -353,7 +362,7 @@ const HomePage = () => {
           viewport={{ once: true, amount: 0.4 }}
           variants={fadeUp}
         >
-          HOW IT <span className="ind-accent">WORKS</span>
+          HOW IT WORKS <span className="ind-accent">— FOR BUYERS</span>
         </motion.h2>
 
         <div className="ind-timeline__track">
@@ -364,7 +373,45 @@ const HomePage = () => {
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 1.1, ease: [0.4, 0, 0.2, 1] }}
           />
-          {PIPELINE_STEPS.map((s, i) => (
+          {BUYER_PIPELINE_STEPS.map((s, i) => (
+            <motion.div
+              key={s.n}
+              className="ind-timeline__step"
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.5 }}
+              variants={fadeUp}
+              transition={{ delay: i * 0.12 }}
+            >
+              <span className="ind-timeline__num">{s.n}</span>
+              <h3>{s.label}</h3>
+              <p>{s.copy}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ---------- How It Works — Sellers ---------- */}
+      <section className="ind-timeline">
+        <motion.h2
+          className="ind-section-title ind-section-title--center"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.4 }}
+          variants={fadeUp}
+        >
+          HOW IT WORKS <span className="ind-accent">— FOR SELLERS</span>
+        </motion.h2>
+
+        <div className="ind-timeline__track">
+          <motion.div
+            className="ind-timeline__line"
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 1.1, ease: [0.4, 0, 0.2, 1] }}
+          />
+          {SELLER_PIPELINE_STEPS.map((s, i) => (
             <motion.div
               key={s.n}
               className="ind-timeline__step"
@@ -406,13 +453,14 @@ const HomePage = () => {
             <span className="ind-accent">NEW OPPORTUNITIES.</span>
           </h2>
           <p className="ind-trust__copy">
-            We're building the marketplace for textile machinery — connecting owners, brokers and buyers of
-            knitting, weaving and warping machines in one place, with direct, verified communication at every step.
+            We're building the marketplace for textile machinery — bringing together owners, brokers and buyers of
+            knitting, weaving and warping machines in one place, and handling every deal ourselves from first
+            enquiry to close.
           </p>
           <ul className="ind-trust__list">
             <li>Verified Listings</li>
             <li>Transparent Information</li>
-            <li>Direct Communication</li>
+            <li>Brokered Deals</li>
             <li>Industrial Expertise</li>
           </ul>
         </motion.div>
