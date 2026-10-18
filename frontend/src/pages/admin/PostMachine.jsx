@@ -9,6 +9,26 @@ import './PostMachine.css';
 // re-encode before upload so a multi-photo listing stays well under that.
 const MAX_IMAGE_DIMENSION = 1600;
 const IMAGE_QUALITY = 0.8;
+// Client's requirement: every machine photo should carry our contact number,
+// same as the working-machine videos already do.
+const WATERMARK_TEXT = '+91 96620 01216';
+
+function drawWatermark(ctx, width, height) {
+  const fontSize = Math.max(16, Math.round(width * 0.025));
+  ctx.font = `600 ${fontSize}px sans-serif`;
+  const padding = Math.round(fontSize * 0.6);
+  const textWidth = ctx.measureText(WATERMARK_TEXT).width;
+  const boxWidth = textWidth + padding * 2;
+  const boxHeight = fontSize + padding * 1.2;
+  const x = width - boxWidth - padding;
+  const y = height - boxHeight - padding;
+
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+  ctx.fillRect(x, y, boxWidth, boxHeight);
+  ctx.fillStyle = '#ffffff';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(WATERMARK_TEXT, x + padding, y + boxHeight / 2);
+}
 
 function compressImage(file) {
   return new Promise((resolve) => {
@@ -29,7 +49,9 @@ function compressImage(file) {
       const canvas = document.createElement('canvas');
       canvas.width = width;
       canvas.height = height;
-      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      drawWatermark(ctx, width, height);
       canvas.toBlob(
         (blob) => {
           if (!blob) {
@@ -254,6 +276,10 @@ const PostMachine = () => {
         throw new Error('Please enter the year manufactured');
       }
 
+      if (!formData.sellerName.trim() || !formData.sellerPhone.trim()) {
+        throw new Error('Please enter the seller name and phone number');
+      }
+
       if (uploadedPhotos.length === 0) {
         throw new Error('Please upload at least one photo');
       }
@@ -468,7 +494,7 @@ const PostMachine = () => {
             </div>
 
             <div className="form-group">
-              <label>Description</label>
+              <label>Description (optional)</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
@@ -525,28 +551,30 @@ const PostMachine = () => {
             <h2>Seller Information</h2>
             <div className="form-row">
               <div className="form-group">
-                <label>Seller Name</label>
+                <label>Seller Name *</label>
                 <input
                   type="text"
                   value={formData.sellerName}
                   onChange={(e) => handleInputChange('sellerName', e.target.value)}
                   placeholder="Your name or company"
+                  required
                 />
               </div>
               <div className="form-group">
-                <label>Phone</label>
+                <label>Phone *</label>
                 <input
                   type="tel"
                   value={formData.sellerPhone}
                   onChange={(e) => handleInputChange('sellerPhone', e.target.value)}
                   placeholder="+91..."
+                  required
                 />
               </div>
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label>Email</label>
+                <label>Email (optional)</label>
                 <input
                   type="email"
                   value={formData.sellerEmail}
@@ -555,7 +583,7 @@ const PostMachine = () => {
                 />
               </div>
               <div className="form-group">
-                <label>WhatsApp</label>
+                <label>WhatsApp (optional)</label>
                 <input
                   type="tel"
                   value={formData.sellerWhatsApp}

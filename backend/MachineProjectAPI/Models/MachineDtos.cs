@@ -57,12 +57,12 @@ namespace MachineProjectAPI.Models
         public string Location { get; set; } = string.Empty;
         public decimal? AskingPrice { get; set; }
         public int Quantity { get; set; } = 1;
-        public string Description { get; set; } = string.Empty;
+        public string? Description { get; set; }
         public string Condition { get; set; } = "Good";
         public string SellerName { get; set; } = string.Empty;
         public string SellerPhone { get; set; } = string.Empty;
-        public string SellerEmail { get; set; } = string.Empty;
-        public string SellerWhatsApp { get; set; } = string.Empty;
+        public string? SellerEmail { get; set; }
+        public string? SellerWhatsApp { get; set; }
         public string? SpecificationsJson { get; set; }
 
         public List<Microsoft.AspNetCore.Http.IFormFile>? Photos { get; set; }

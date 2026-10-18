@@ -166,12 +166,12 @@ namespace MachineProjectAPI.Controllers
                 Location = request.Location,
                 AskingPrice = request.AskingPrice ?? 0,
                 Quantity = request.Quantity <= 0 ? 1 : request.Quantity,
-                Description = request.Description,
+                Description = request.Description ?? string.Empty,
                 Condition = string.IsNullOrWhiteSpace(request.Condition) ? "Good" : request.Condition,
                 SellerName = request.SellerName,
                 SellerPhone = request.SellerPhone,
-                SellerEmail = request.SellerEmail,
-                SellerWhatsApp = request.SellerWhatsApp,
+                SellerEmail = request.SellerEmail ?? string.Empty,
+                SellerWhatsApp = request.SellerWhatsApp ?? string.Empty,
                 SpecificationsJson = string.IsNullOrWhiteSpace(request.SpecificationsJson) ? "{}" : request.SpecificationsJson,
                 Photos = photoUrls,
                 VideoUrl = videoUrl,
@@ -215,12 +215,12 @@ namespace MachineProjectAPI.Controllers
                 machine.AskingPrice = request.AskingPrice.Value;
             }
             machine.Quantity = request.Quantity <= 0 ? machine.Quantity : request.Quantity;
-            machine.Description = request.Description;
+            machine.Description = request.Description ?? machine.Description;
             machine.Condition = string.IsNullOrWhiteSpace(request.Condition) ? machine.Condition : request.Condition;
             machine.SellerName = request.SellerName;
             machine.SellerPhone = request.SellerPhone;
-            machine.SellerEmail = request.SellerEmail;
-            machine.SellerWhatsApp = request.SellerWhatsApp;
+            machine.SellerEmail = request.SellerEmail ?? machine.SellerEmail;
+            machine.SellerWhatsApp = request.SellerWhatsApp ?? machine.SellerWhatsApp;
             if (!string.IsNullOrWhiteSpace(request.SpecificationsJson))
             {
                 machine.SpecificationsJson = request.SpecificationsJson;
