@@ -268,11 +268,6 @@ const MachineDetail = () => {
               </div>
             </div>
 
-            <div className="price-box">
-              <p className="price-label">💬 Ask About Price</p>
-              <p className="price-text">Contact us for pricing details</p>
-            </div>
-
             <div className="location-info">
               <p><strong>📍 Location:</strong> {machine.location}</p>
               <p><strong>📅 Year:</strong> {machine.year}</p>

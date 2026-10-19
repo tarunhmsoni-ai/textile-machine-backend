@@ -310,10 +310,10 @@ const HomePage = () => {
           variants={fadeUp}
           transition={{ delay: 0.1 }}
         >
-          <h3>Get In Touch</h3>
-          <p>Have a question about a machine, a deal or the platform? Talk to us directly.</p>
-          <AnimatedButton variant="ghost" className="ind-cta-card__btn" onClick={() => scrollTo('contact')}>
-            CONTACT US
+          <h3>Sell</h3>
+          <p>Have a machine to sell? List it with us and we'll find the right buyer.</p>
+          <AnimatedButton variant="ghost" className="ind-cta-card__btn" onClick={() => navigate('/admin/post-machine')}>
+            SELL YOUR MACHINE
           </AnimatedButton>
         </motion.div>
       </section>

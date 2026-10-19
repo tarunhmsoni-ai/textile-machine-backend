@@ -7,6 +7,7 @@ const LINKS = [
   { label: 'HOME', href: '/' },
   { label: 'MACHINES', href: '/machines' },
   { label: 'CATEGORIES', href: '/machines' },
+  { label: 'BUY MACHINE', href: '/machines' },
   { label: 'SELL YOUR MACHINE', href: '/admin/post-machine' },
 ];
 
