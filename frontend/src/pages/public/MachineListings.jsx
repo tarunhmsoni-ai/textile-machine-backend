@@ -208,7 +208,13 @@ const MachineListings = () => {
                       </div>
                       <p className="machine-card__description">{machine.description}</p>
                       <div className="price-section">
-                        <p className="machine-card__price-text">💬 Contact for Price</p>
+                        <button
+                          type="button"
+                          className="machine-card__price-text machine-card__price-text--btn"
+                          onClick={() => handleContactSeller(machine.id)}
+                        >
+                          💬 Contact for Price
+                        </button>
                       </div>
                       <div className="action-buttons">
                         <button

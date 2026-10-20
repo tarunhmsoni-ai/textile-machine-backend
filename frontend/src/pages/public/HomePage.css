@@ -556,6 +556,15 @@
   margin: 0 0 1.25rem;
 }
 
+.ind-machine-card__price--btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  display: block;
+}
+
 /* ================= Timeline ================= */
 .ind-timeline {
   padding: 5rem 2rem;

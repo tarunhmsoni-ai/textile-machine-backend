@@ -298,6 +298,14 @@
   color: var(--accent-red);
 }
 
+.machine-card__price-text--btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .action-buttons {
   display: flex;
   gap: 0.75rem;

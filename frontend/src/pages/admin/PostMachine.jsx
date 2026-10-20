@@ -12,6 +12,10 @@ const IMAGE_QUALITY = 0.8;
 // Client's requirement: every machine photo should carry our contact number,
 // same as the working-machine videos already do.
 const WATERMARK_TEXT = '+91 96620 01216';
+// Phone videos routinely run 100MB+, which the backend/hosting layer
+// rejects with a raw error page before our own readable message can show.
+// Catch oversized videos here so the seller gets clear guidance immediately.
+const MAX_VIDEO_BYTES = 40 * 1024 * 1024;
 
 function drawWatermark(ctx, width, height) {
   const fontSize = Math.max(16, Math.round(width * 0.025));
@@ -240,6 +244,15 @@ const PostMachine = () => {
   const handleVideoUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    if (file.size > MAX_VIDEO_BYTES) {
+      setError(
+        `This video is ${(file.size / 1024 / 1024).toFixed(0)}MB — please trim it or compress it to under ` +
+        `${MAX_VIDEO_BYTES / 1024 / 1024}MB and try again (most phone camera apps can compress video when sharing/exporting).`
+      );
+      e.target.value = '';
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = (event) => {

@@ -250,7 +250,13 @@ const HomePage = () => {
                   <p className="ind-machine-card__meta">
                     {m.subtype} · {m.location}
                   </p>
-                  <p className="ind-machine-card__price">Price On Request</p>
+                  <button
+                    type="button"
+                    className="ind-machine-card__price ind-machine-card__price--btn"
+                    onClick={() => navigate(`/machines/${m.id}`)}
+                  >
+                    Price On Request
+                  </button>
                   <div className="ind-machine-card__actions">
                     <AnimatedButton variant="ghost" onClick={() => navigate(`/machines/${m.id}`)}>
                       VIEW DETAILS
