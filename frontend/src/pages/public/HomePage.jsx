@@ -461,9 +461,7 @@ const HomePage = () => {
             <span className="ind-accent">NEW OPPORTUNITIES.</span>
           </h2>
           <p className="ind-trust__copy">
-            We're building the marketplace for textile machinery — bringing together owners, brokers and buyers of
-            knitting, weaving and warping machines in one place, and handling every deal ourselves from first
-            enquiry to close.
+            We help you earn more profits by buying good condition used textile machines at heavy discounts.
           </p>
           <ul className="ind-trust__list">
             <li>Verified Listings</li>
