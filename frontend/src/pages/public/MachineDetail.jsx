@@ -5,6 +5,9 @@ import CategoryBar from '../../components/CategoryBar';
 import Breadcrumb from '../../components/Breadcrumb';
 import apiClient, { resolveMediaUrl } from '../../services/apiClient';
 import { onImageError } from '../../utils/imageFallback';
+import { whatsappShareUrl, facebookShareUrl } from '../../utils/shareLinks';
+import WhatsAppIcon from '../../components/WhatsAppIcon';
+import FacebookIcon from '../../components/FacebookIcon';
 import './MachineDetail.css';
 
 // All buyer enquiries route through us, never straight to the seller —
@@ -145,27 +148,6 @@ const MachineDetail = () => {
     ? `Hi, I'm interested in the ${machine.brand} ${machine.model} machine listed on Textile Machine. Could you please provide more details?`
     : '';
 
-  const handleShare = async () => {
-    if (!machine) return;
-    const shareData = {
-      title: `${machine.brand} ${machine.model}`,
-      text: `Check out this ${machine.brand} ${machine.model} on Textile Machine`,
-      url: window.location.href,
-    };
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch {
-        /* user cancelled share — nothing to do */
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(shareData.url);
-      } catch {
-        /* clipboard unavailable — silently ignore */
-      }
-    }
-  };
 
   if (loading) {
     return (
@@ -222,14 +204,28 @@ const MachineDetail = () => {
                 ) : (
                   <img src={machine.photos[activePhoto]} alt={`${machine.brand} ${machine.model}`} onError={onImageError} />
                 )}
-                <button
-                  className="main-image__share"
-                  onClick={handleShare}
-                  aria-label="Share this machine"
-                  title="Share"
-                >
-                  ⤴
-                </button>
+                <div className="main-image__share-group">
+                  <a
+                    href={machine ? whatsappShareUrl(`Check out this ${machine.brand} ${machine.model} on Textile Machine`, window.location.href) : '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="main-image__share"
+                    aria-label="Share on WhatsApp"
+                    title="Share on WhatsApp"
+                  >
+                    <WhatsAppIcon size={18} />
+                  </a>
+                  <a
+                    href={facebookShareUrl(window.location.href)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="main-image__share"
+                    aria-label="Share on Facebook"
+                    title="Share on Facebook"
+                  >
+                    <FacebookIcon size={18} />
+                  </a>
+                </div>
               </div>
             </div>
             <div className="thumbnail-gallery">

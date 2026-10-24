@@ -6,6 +6,9 @@ import Navbar from '../../components/Navbar';
 import CategoryBar from '../../components/CategoryBar';
 import Breadcrumb from '../../components/Breadcrumb';
 import { onImageError } from '../../utils/imageFallback';
+import { whatsappShareUrl, facebookShareUrl } from '../../utils/shareLinks';
+import WhatsAppIcon from '../../components/WhatsAppIcon';
+import FacebookIcon from '../../components/FacebookIcon';
 
 const MachineListings = () => {
   const navigate = useNavigate();
@@ -62,27 +65,6 @@ const MachineListings = () => {
 
   const handleContactSeller = (machineId) => {
     navigate(`/machines/${machineId}`);
-  };
-
-  const handleShare = async (machine) => {
-    const shareData = {
-      title: `${machine.brand} ${machine.model}`,
-      text: `Check out this ${machine.brand} ${machine.model} on Textile Machine`,
-      url: `${window.location.origin}/machines/${machine.id}`,
-    };
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch {
-        /* user cancelled share — nothing to do */
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(shareData.url);
-      } catch {
-        /* clipboard unavailable — silently ignore */
-      }
-    }
   };
 
   const activeTypeName = machineTypes.find((t) => t.id === filters.type)?.name;
@@ -190,21 +172,44 @@ const MachineListings = () => {
                       </div>
                       <div className="machine-image__ribbon">
                         <span className="machine-card__badge">{machine.subtype}</span>
+                        {machine.status && (
+                          <span className={`machine-card__status machine-card__status--${machine.status.toLowerCase()}`}>
+                            {machine.status}
+                          </span>
+                        )}
                       </div>
-                      <button
-                        className="machine-image__share"
-                        onClick={() => handleShare(machine)}
-                        aria-label="Share this machine"
-                        title="Share"
-                      >
-                        ⤴
-                      </button>
+                      <div className="machine-image__share-group">
+                        <a
+                          href={whatsappShareUrl(`Check out this ${machine.brand} ${machine.model} on Textile Machine`, `${window.location.origin}/machines/${machine.id}`)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="machine-image__share"
+                          aria-label="Share on WhatsApp"
+                          title="Share on WhatsApp"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <WhatsAppIcon size={16} />
+                        </a>
+                        <a
+                          href={facebookShareUrl(`${window.location.origin}/machines/${machine.id}`)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="machine-image__share"
+                          aria-label="Share on Facebook"
+                          title="Share on Facebook"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <FacebookIcon size={16} />
+                        </a>
+                      </div>
                     </div>
                     <div className="machine-info">
                       <h3>{machine.brand} {machine.model}</h3>
                       <div className="specs">
                         <span className="year">{machine.year}</span>
                         <span className="location">📍 {machine.location}</span>
+                        {machine.condition && <span className="condition">⚙️ {machine.condition}</span>}
+                        {machine.quantity > 1 && <span className="quantity">× {machine.quantity}</span>}
                       </div>
                       <p className="machine-card__description">{machine.description}</p>
                       <div className="price-section">
@@ -229,7 +234,7 @@ const MachineListings = () => {
                           rel="noopener noreferrer"
                           className="whatsapp-link"
                         >
-                          💬 Message
+                          <WhatsAppIcon size={16} /> Message
                         </a>
                       </div>
                     </div>

@@ -15,6 +15,9 @@ namespace MachineProjectAPI.Models
         public decimal Price { get; set; }
         public string? Photo { get; set; }
         public string Description { get; set; } = string.Empty;
+        public string Condition { get; set; } = string.Empty;
+        public int Quantity { get; set; } = 1;
+        public string Status { get; set; } = string.Empty;
     }
 
     // Shape consumed by the machine detail page (MachineDetail.jsx)

@@ -6,8 +6,10 @@ import CategoryBar from '../../components/CategoryBar';
 import GearLogo from '../../components/GearLogo';
 import AnimatedButton from '../../components/AnimatedButton';
 import WhatsAppIcon from '../../components/WhatsAppIcon';
+import FacebookIcon from '../../components/FacebookIcon';
 import apiClient, { resolveMediaUrl } from '../../services/apiClient';
 import { onImageError } from '../../utils/imageFallback';
+import { whatsappShareUrl, facebookShareUrl } from '../../utils/shareLinks';
 import './HomePage.css';
 
 const MACHINE_TYPES = [
@@ -77,7 +79,7 @@ const HomePage = () => {
         // Never show fake/sample listings here — a buyer clicking a card
         // expects a real machine, and a fabricated one is just a dead end.
         const list = res.data || [];
-        if (!cancelled) setFeatured(list.slice(0, 3).map((m) => ({ ...m, photo: resolveMediaUrl(m.photo) })));
+        if (!cancelled) setFeatured(list.map((m) => ({ ...m, photo: resolveMediaUrl(m.photo) })));
       })
       .catch(() => {
         if (!cancelled) setFeatured([]);
@@ -96,27 +98,6 @@ const HomePage = () => {
   };
 
   const handleMachineTypeClick = (type) => navigate(`/machines?type=${type}`);
-
-  const handleShare = async (machine) => {
-    const shareData = {
-      title: `${machine.brand} ${machine.model}`,
-      text: `Check out this ${machine.brand} ${machine.model} on Textile Machine`,
-      url: `${window.location.origin}/machines/${machine.id}`,
-    };
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch {
-        /* user cancelled share — nothing to do */
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(shareData.url);
-      } catch {
-        /* clipboard unavailable — silently ignore */
-      }
-    }
-  };
 
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
@@ -234,14 +215,30 @@ const HomePage = () => {
                 <div className="ind-machine-card__image">
                   <img src={m.photo} alt={`${m.brand} ${m.model}`} onError={onImageError} />
                   <span className="ind-machine-card__badge">{m.subtype}</span>
-                  <button
-                    className="ind-machine-card__share"
-                    onClick={() => handleShare(m)}
-                    aria-label="Share this machine"
-                    title="Share"
-                  >
-                    ⤴
-                  </button>
+                  <div className="ind-machine-card__share-group">
+                    <a
+                      href={whatsappShareUrl(`Check out this ${m.brand} ${m.model} on Textile Machine`, `${window.location.origin}/machines/${m.id}`)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ind-machine-card__share"
+                      aria-label="Share on WhatsApp"
+                      title="Share on WhatsApp"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <WhatsAppIcon size={16} />
+                    </a>
+                    <a
+                      href={facebookShareUrl(`${window.location.origin}/machines/${m.id}`)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ind-machine-card__share"
+                      aria-label="Share on Facebook"
+                      title="Share on Facebook"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <FacebookIcon size={16} />
+                    </a>
+                  </div>
                 </div>
                 <div className="ind-machine-card__body">
                   <h3>
@@ -249,6 +246,8 @@ const HomePage = () => {
                   </h3>
                   <p className="ind-machine-card__meta">
                     {m.subtype} · {m.location}
+                    {m.condition && ` · ${m.condition}`}
+                    {m.quantity > 1 && ` · ×${m.quantity}`}
                   </p>
                   <button
                     type="button"

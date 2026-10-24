@@ -177,7 +177,7 @@ export function Machines({ machines, onDelete }) {
                   <td>{m.location}</td>
                   <td>{m.price}</td>
                   <td>
-                    <span className={`badge ${m.status === 'Available' ? 'available' : 'reserved'}`}>
+                    <span className={`badge ${m.status === 'Live' ? 'available' : m.status === 'Sold' ? 'sold' : 'reserved'}`}>
                       {m.status}
                     </span>
                   </td>

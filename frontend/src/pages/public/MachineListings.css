@@ -202,12 +202,45 @@
   position: absolute;
   left: 0.75rem;
   bottom: 0.75rem;
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
 }
 
-.machine-image__share {
+.machine-card__status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  background: rgba(62, 207, 126, 0.15);
+  color: #4ee38a;
+}
+
+.machine-card__status--sold {
+  background: rgba(220, 53, 69, 0.15);
+  color: #e35d6a;
+}
+
+.condition,
+.quantity {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+.machine-image__share-group {
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.machine-image__share {
   width: 34px;
   height: 34px;
   display: flex;
@@ -337,6 +370,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.4rem;
   background: #25d366;
   color: white;
   border-radius: var(--radius-sm);

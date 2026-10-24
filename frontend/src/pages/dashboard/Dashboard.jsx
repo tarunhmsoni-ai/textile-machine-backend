@@ -44,7 +44,9 @@ const INITIAL_MACHINES = [
 
 export default function Dashboard({ onLogout }) {
   const navigate = useNavigate();
-  const [activePage, setActivePage] = useState('dashboard');
+  const [activePage, setActivePage] = useState(() =>
+    localStorage.getItem('userRole') === 'Admin' ? 'kpi' : 'dashboard'
+  );
   const [submissions, setSubmissions] = useState(INITIAL_SUBMISSIONS);
   const [machines, setMachines] = useState(INITIAL_MACHINES);
   const [machineTotal, setMachineTotal] = useState(128);
@@ -81,7 +83,7 @@ export default function Dashboard({ onLogout }) {
           seller: m.seller?.name || '—',
           location: m.location,
           price: m.price ? `₹${m.price}` : 'On request',
-          status: m.status === 'Live' ? 'Available' : m.status,
+          status: m.status,
           media: m.videoUrl ? 'Photos + Video' : m.photos?.length ? 'Photos' : '—',
           photos: (m.photos || []).map(resolveMediaUrl),
         }));

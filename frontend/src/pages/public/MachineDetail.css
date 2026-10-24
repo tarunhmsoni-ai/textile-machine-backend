@@ -80,10 +80,15 @@
   box-shadow: var(--shadow-elevated);
 }
 
-.main-image__share {
+.main-image__share-group {
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.main-image__share {
   width: 38px;
   height: 38px;
   display: flex;

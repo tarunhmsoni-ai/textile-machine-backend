@@ -507,10 +507,15 @@
   letter-spacing: 0.04em;
 }
 
-.ind-machine-card__share {
+.ind-machine-card__share-group {
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.ind-machine-card__share {
   width: 34px;
   height: 34px;
   display: flex;

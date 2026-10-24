@@ -383,6 +383,9 @@ namespace MachineProjectAPI.Controllers
             Price = m.AskingPrice,
             Photo = m.Photos.FirstOrDefault(),
             Description = m.Description,
+            Condition = m.Condition,
+            Quantity = m.Quantity,
+            Status = m.Status,
         };
 
         private static MachineDetailDto ToDetailDto(Machine m)
