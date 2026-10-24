@@ -20,6 +20,12 @@ export function LeadsPipeline({ onToast }) {
   const [activityForm, setActivityForm] = useState({ activityType: 'Phone Call', channel: '', description: '' });
   const [markSoldMachineId, setMarkSoldMachineId] = useState('');
   const [referralPartners, setReferralPartners] = useState([]);
+  const [showAddLead, setShowAddLead] = useState(false);
+  const [newLead, setNewLead] = useState({
+    name: '', phone: '', email: '', whatsApp: '',
+    source: 'Phone Call', sourceDetails: '',
+    requiredMachineType: '', requiredSubType: '', additionalRequirements: '',
+  });
 
   const load = () => {
     setLoading(true);
@@ -113,6 +119,27 @@ export function LeadsPipeline({ onToast }) {
     }
   };
 
+  const submitNewLead = async (e) => {
+    e.preventDefault();
+    if (!newLead.name.trim() || !newLead.phone.trim()) {
+      onToast?.('Please enter a name and phone number.');
+      return;
+    }
+    try {
+      await apiClient.post('/leads', newLead);
+      onToast?.('Lead added.');
+      setShowAddLead(false);
+      setNewLead({
+        name: '', phone: '', email: '', whatsApp: '',
+        source: 'Phone Call', sourceDetails: '',
+        requiredMachineType: '', requiredSubType: '', additionalRequirements: '',
+      });
+      load();
+    } catch {
+      onToast?.('Could not add this lead.');
+    }
+  };
+
   const grouped = STAGES.reduce((acc, s) => {
     acc[s] = leads.filter((l) => l.status === s);
     return acc;
@@ -128,6 +155,9 @@ export function LeadsPipeline({ onToast }) {
           ))}
         </select>
         <span className="muted">{leads.length} lead(s)</span>
+        <button type="button" className="btn primary" onClick={() => setShowAddLead(true)}>
+          + Add Lead
+        </button>
       </div>
 
       {loading ? (
@@ -135,7 +165,7 @@ export function LeadsPipeline({ onToast }) {
       ) : leads.length === 0 ? (
         <p className="muted">
           No leads yet. Buyer enquiries from the website (machine enquiry form, homepage Contact Us) land here
-          automatically — you can also log one manually with the button above once you add machines.
+          automatically — you can also log one manually with the "+ Add Lead" button above (e.g. a phone/WhatsApp enquiry).
         </p>
       ) : (
         <div className="leads-pipeline__board">
@@ -283,6 +313,61 @@ export function LeadsPipeline({ onToast }) {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {showAddLead && (
+        <div className="leads-pipeline__detail-overlay" onClick={() => setShowAddLead(false)}>
+          <div className="leads-pipeline__detail" onClick={(e) => e.stopPropagation()}>
+            <button className="leads-pipeline__close" onClick={() => setShowAddLead(false)}>✕</button>
+            <h3>Add Lead</h3>
+            <p className="muted">Log a phone/WhatsApp enquiry or any lead that didn't come through the website form.</p>
+            <form onSubmit={submitNewLead} className="leads-pipeline__activity-form" style={{ flexDirection: 'column' }}>
+              <input
+                placeholder="Name *"
+                value={newLead.name}
+                onChange={(e) => setNewLead((f) => ({ ...f, name: e.target.value }))}
+                required
+              />
+              <input
+                placeholder="Phone *"
+                value={newLead.phone}
+                onChange={(e) => setNewLead((f) => ({ ...f, phone: e.target.value }))}
+                required
+              />
+              <input
+                placeholder="WhatsApp (optional)"
+                value={newLead.whatsApp}
+                onChange={(e) => setNewLead((f) => ({ ...f, whatsApp: e.target.value }))}
+              />
+              <input
+                placeholder="Email (optional)"
+                value={newLead.email}
+                onChange={(e) => setNewLead((f) => ({ ...f, email: e.target.value }))}
+              />
+              <select
+                value={newLead.source}
+                onChange={(e) => setNewLead((f) => ({ ...f, source: e.target.value }))}
+              >
+                <option value="Phone Call">Phone Call</option>
+                <option value="WhatsApp">WhatsApp</option>
+                <option value="Referral">Referral</option>
+                <option value="Other">Other</option>
+              </select>
+              <input
+                placeholder="Looking for (e.g. Knitting — Warp Knitting)"
+                value={newLead.requiredMachineType}
+                onChange={(e) => setNewLead((f) => ({ ...f, requiredMachineType: e.target.value }))}
+              />
+              <textarea
+                placeholder="Notes / requirements"
+                value={newLead.additionalRequirements}
+                onChange={(e) => setNewLead((f) => ({ ...f, additionalRequirements: e.target.value }))}
+                rows="3"
+              />
+              <button type="submit" className="btn primary">Add Lead</button>
+            </form>
           </div>
         </div>
       )}
