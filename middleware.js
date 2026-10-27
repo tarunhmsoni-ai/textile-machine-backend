@@ -45,7 +45,10 @@ export default async function middleware(request) {
     'Available for sale on Textile Machine',
   ].filter(Boolean);
   const description = descriptionParts.join(' · ');
-  const image = machine.photos?.[0] || `${url.origin}/machines/karl-mayer-hks3m-plate.webp`;
+  const rawPhoto = machine.photos?.[0];
+  const image = rawPhoto
+    ? (/^https?:\/\//i.test(rawPhoto) ? rawPhoto : `${API_ORIGIN}${rawPhoto}`)
+    : `${url.origin}/machines/karl-mayer-hks3m-plate.webp`;
   const pageUrl = `${url.origin}/machines/${id}`;
 
   const html = `<!doctype html>
