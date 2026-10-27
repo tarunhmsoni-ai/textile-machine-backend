@@ -30,6 +30,15 @@ const MachineListings = () => {
     { id: 'warping', name: 'Warping', subtypes: ['Direct Warping', 'Split Warping', 'Beamer'] }
   ];
 
+  // Clicking a category tab (Knitting/Weaving/Warping) while already on this
+  // page changes the URL but doesn't remount the component, so filters.type
+  // — only read from the URL once at mount — went stale. Keep it in sync.
+  useEffect(() => {
+    const urlType = searchParams.get('type') || '';
+    setFilters((f) => (f.type === urlType ? f : { ...f, type: urlType }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get('type')]);
+
   useEffect(() => {
     fetchMachines();
   }, [filters]);
@@ -208,7 +217,6 @@ const MachineListings = () => {
                       <div className="specs">
                         <span className="year">{machine.year}</span>
                         <span className="location">📍 {machine.location}</span>
-                        {machine.condition && <span className="condition">⚙️ {machine.condition}</span>}
                         {machine.quantity > 1 && <span className="quantity">× {machine.quantity}</span>}
                       </div>
                       <p className="machine-card__description">{machine.description}</p>

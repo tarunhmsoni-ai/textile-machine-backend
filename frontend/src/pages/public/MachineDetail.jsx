@@ -388,16 +388,6 @@ const MachineDetail = () => {
             </ul>
           </div>
 
-          {/* Safety Info */}
-          <div className="safety-card">
-            <h3>Safety Tips</h3>
-            <ul>
-              <li>Inspect the machine thoroughly before purchase</li>
-              <li>Check documentation</li>
-              <li>Get warranty details</li>
-              <li>All deals are handled through us</li>
-            </ul>
-          </div>
         </aside>
       </div>
     </div>

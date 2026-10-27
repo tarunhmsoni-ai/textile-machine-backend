@@ -246,7 +246,6 @@ const HomePage = () => {
                   </h3>
                   <p className="ind-machine-card__meta">
                     {m.subtype} · {m.location}
-                    {m.condition && ` · ${m.condition}`}
                     {m.quantity > 1 && ` · ×${m.quantity}`}
                   </p>
                   <button
