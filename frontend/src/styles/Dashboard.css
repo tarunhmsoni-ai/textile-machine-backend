@@ -519,7 +519,17 @@
 
 @media (max-width: 900px) {
   .dash .app {
-    grid-template-columns: 1fr;
+    /* minmax(0,…) stops the scrollable nav strip from stretching the page wider than the screen */
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dash .side,
+  .dash .main {
+    min-width: 0;
+  }
+
+  .dash .top {
+    flex-wrap: wrap;
   }
 
   .dash .side {

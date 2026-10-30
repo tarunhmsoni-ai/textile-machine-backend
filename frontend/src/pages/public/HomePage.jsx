@@ -62,6 +62,7 @@ const HomePage = () => {
   const [newsletterDone, setNewsletterDone] = useState(false);
   const [contactDone, setContactDone] = useState(false);
   const [featured, setFeatured] = useState([]);
+  const [featuredLoading, setFeaturedLoading] = useState(true);
 
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
@@ -83,6 +84,9 @@ const HomePage = () => {
       })
       .catch(() => {
         if (!cancelled) setFeatured([]);
+      })
+      .finally(() => {
+        if (!cancelled) setFeaturedLoading(false);
       });
     return () => {
       cancelled = true;
@@ -191,6 +195,9 @@ const HomePage = () => {
       </div>
 
       {/* ---------- Featured Machinery (shown first, before the hero copy) ---------- */}
+      {featuredLoading && (
+        <p style={{ textAlign: 'center', padding: '24px 16px' }}>Loading machines...</p>
+      )}
       {featured.length > 0 && (
         <section className="ind-featured ind-featured--top" id="machines">
           <motion.h2
