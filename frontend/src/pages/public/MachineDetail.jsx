@@ -271,6 +271,7 @@ const MachineDetail = () => {
             <p className="description">{machine.description}</p>
 
             {/* Specifications Table */}
+            {Object.keys(machine.specifications).some((k) => k.toLowerCase() !== 'condition') && (
             <section className="specifications">
               <h3>Specifications</h3>
               <table className="spec-table">
@@ -284,6 +285,7 @@ const MachineDetail = () => {
                 </tbody>
               </table>
             </section>
+            )}
           </section>
         </main>
 
