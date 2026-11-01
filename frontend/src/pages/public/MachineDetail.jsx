@@ -260,14 +260,12 @@ const MachineDetail = () => {
               <div className="badges">
                 <span className="type-badge">{machine.subtype}</span>
                 <span className="year-badge">{machine.year}</span>
-                <span className="condition-badge">{machine.condition || 'Working'}</span>
               </div>
             </div>
 
             <div className="location-info">
               <p><strong>📍 Location:</strong> {machine.location}</p>
               <p><strong>📅 Year:</strong> {machine.year}</p>
-              <p><strong>⚙️ Condition:</strong> {machine.condition || 'Working'}</p>
             </div>
 
             <p className="description">{machine.description}</p>
@@ -277,7 +275,7 @@ const MachineDetail = () => {
               <h3>Specifications</h3>
               <table className="spec-table">
                 <tbody>
-                  {Object.entries(machine.specifications).map(([k, v]) => (
+                  {Object.entries(machine.specifications).filter(([k]) => k.toLowerCase() !== 'condition').map(([k, v]) => (
                     <tr key={k}>
                       <td>{k}</td>
                       <td>{v}</td>
