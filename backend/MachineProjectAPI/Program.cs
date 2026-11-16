@@ -59,7 +59,7 @@ builder.Services.AddCors(options =>
 
 // Add Database Context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"), new MariaDbServerVersion(new Version(10, 11, 18))));
 
 // Add Auth services
 builder.Services.AddScoped<TokenService>();

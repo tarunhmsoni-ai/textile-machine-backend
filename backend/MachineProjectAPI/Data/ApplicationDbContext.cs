@@ -24,8 +24,8 @@ namespace MachineProjectAPI.Data
             if (!optionsBuilder.IsConfigured)
             {
                 // Design-time fallback only (e.g. `dotnet ef migrations add` without DI config).
-                var connectionString = "Host=localhost;Database=textilemachinedb;Username=postgres;Password=postgres;";
-                optionsBuilder.UseNpgsql(connectionString);
+                var connectionString = "Server=localhost;Database=textilemachinedb;User=root;Password=;";
+                optionsBuilder.UseMySql(connectionString, new MariaDbServerVersion(new Version(10, 11, 18)));
             }
         }
 

@@ -12,3 +12,5 @@ backend/MachineProjectAPI/wwwroot/uploads/*
 
 # Local IDE publish profiles
 backend/MachineProjectAPI/Properties/PublishProfiles/
+backend/database/mysql_data.sql
+deploy-iis/
