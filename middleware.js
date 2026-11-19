@@ -7,7 +7,7 @@
 
 const BOT_USER_AGENT = /facebookexternalhit|whatsapp|twitterbot|slackbot|telegrambot|linkedinbot|discordbot|pinterest|skypeuripreview|vkshare|w3c_validator/i;
 
-const API_ORIGIN = 'https://textile-machine-backend.onrender.com';
+const API_ORIGIN = 'https://api.knittingmachine.in';
 
 function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, (c) => ({
