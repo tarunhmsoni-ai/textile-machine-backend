@@ -109,6 +109,57 @@ namespace MachineProjectAPI.Controllers
         /// Deactivate a referral partner (soft delete — their lead history stays intact).
         /// DELETE /api/referral-partners/{id}
         /// </summary>
+        public class PartnerCallRequest
+        {
+            public DateTime? CalledOn { get; set; }
+            public string? Notes { get; set; }
+        }
+
+        /// <summary>Calls made to this partner, newest first. GET /api/referral-partners/{id}/calls</summary>
+        [HttpGet("{id:int}/calls")]
+        public async Task<IActionResult> Calls(int id)
+        {
+            var calls = await _context.PartnerCalls.Where(c => c.PartnerId == id && c.IsActive)
+                .OrderByDescending(c => c.CalledOn).ThenByDescending(c => c.Id)
+                .Select(c => new { id = c.Id, calledOn = c.CalledOn, notes = c.Notes, by = c.CreatedByName })
+                .ToListAsync();
+            return Ok(calls);
+        }
+
+        /// <summary>Log a call to this partner. POST /api/referral-partners/{id}/calls</summary>
+        [HttpPost("{id:int}/calls")]
+        public async Task<IActionResult> LogCall(int id, [FromBody] PartnerCallRequest request)
+        {
+            var partner = await _context.ReferralPartners.FirstOrDefaultAsync(p => p.Id == id);
+            if (partner == null) return NotFound(new { message = "Partner not found." });
+
+            var day = (request.CalledOn ?? DateTime.UtcNow).Date;
+            if (day > DateTime.UtcNow.Date.AddDays(1)) return BadRequest(new { message = "The date cannot be in the future." });
+
+            _context.PartnerCalls.Add(new PartnerCall
+            {
+                PartnerId = id,
+                CalledOn = day,
+                Notes = request.Notes?.Trim() ?? string.Empty,
+                CreatedByName = User.FindFirst("fullName")?.Value ?? string.Empty,
+            });
+            partner.LastActive = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        /// <summary>Undo a wrongly logged call. DELETE /api/referral-partners/{id}/calls/{callId}</summary>
+        [HttpDelete("{id:int}/calls/{callId:int}")]
+        public async Task<IActionResult> RemoveCall(int id, int callId)
+        {
+            var call = await _context.PartnerCalls.FirstOrDefaultAsync(c => c.Id == callId && c.PartnerId == id && c.IsActive);
+            if (call == null) return NotFound();
+            call.IsActive = false;
+            call.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeactivatePartner(int id)
         {

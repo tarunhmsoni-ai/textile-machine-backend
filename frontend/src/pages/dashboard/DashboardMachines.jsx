@@ -23,6 +23,7 @@ export default function MachineInventory({ onToast, onChanged }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [newPhotos, setNewPhotos] = useState([]);
+  const [buyers, setBuyers] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -58,6 +59,17 @@ export default function MachineInventory({ onToast, onChanged }) {
       await refreshAll();
     } catch (err) {
       onToast?.(err?.response?.data?.message || 'Could not change the status — please try again.');
+    }
+  };
+
+  const showBuyers = async (m) => {
+    setBuyers({ machine: m, list: null });
+    try {
+      const res = await apiClient.get(`/leads/machine-matches/${m.id}`);
+      setBuyers({ machine: m, list: res.data || [] });
+    } catch {
+      setBuyers(null);
+      onToast?.('Could not look up matching leads.');
     }
   };
 
@@ -217,6 +229,7 @@ export default function MachineInventory({ onToast, onChanged }) {
                   </td>
                   <td style={{ whiteSpace: 'nowrap' }}>
                     <button type="button" className="btn small" onClick={() => openEdit(m)}>Edit</button>{' '}
+                    <button type="button" className="btn small" onClick={() => showBuyers(m)}>Buyers</button>{' '}
                     <button type="button" className="btn small" onClick={() => soldElsewhere(m)}>Sold elsewhere</button>{' '}
                     <button type="button" className="btn danger small" onClick={() => remove(m)}>Remove</button>
                   </td>
@@ -226,6 +239,30 @@ export default function MachineInventory({ onToast, onChanged }) {
           </tbody>
         </table>
       </div>
+
+      {buyers && (
+        <div className="leads-pipeline__detail-overlay" onClick={() => setBuyers(null)}>
+          <div className="leads-pipeline__detail" onClick={(e) => e.stopPropagation()}>
+            <button className="leads-pipeline__close" onClick={() => setBuyers(null)}>✕</button>
+            <h3>Buyers for {buyers.machine.brand} {buyers.machine.model}</h3>
+            <p className="muted">Open leads whose requirement fits this machine, best match first. Share the machine with them by WhatsApp or phone, then track it in Leads &amp; Pipeline.</p>
+            {buyers.list === null ? (
+              <p className="muted">Looking for matching leads…</p>
+            ) : buyers.list.length === 0 ? (
+              <p className="muted">No matching leads right now. Time for marketing.</p>
+            ) : (
+              <ul className="leads-pipeline__activity-list">
+                {buyers.list.map((b) => (
+                  <li key={b.leadId}>
+                    <b>{b.name || 'Unnamed'}</b> · {b.phone || b.whatsApp || '—'} · stage: {b.status}
+                    <div className="muted">Match: {b.reasons.join(', ')}</div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
 
       {editing && (
         <div className="leads-pipeline__detail-overlay" onClick={() => setEditing(null)}>

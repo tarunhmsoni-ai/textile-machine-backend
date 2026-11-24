@@ -58,13 +58,20 @@ namespace MachineProjectAPI.Controllers
                 ? soldMachinesInPeriod.Average(m => (m.DateSold!.Value - m.DatePosted).TotalDays)
                 : null;
 
-            var phoneCallsDone = await _context.LeadActivities
+            var partnerCallsDone = await _context.PartnerCalls
+                .CountAsync(c => c.IsActive && c.CalledOn >= periodStart && c.CalledOn <= periodEnd);
+
+            var phoneCallsDone = partnerCallsDone + await _context.LeadActivities
                 .CountAsync(a => a.ActivityType == ActivityTypes.PhoneCall
                     && a.ActivityDate >= periodStart && a.ActivityDate <= periodEnd);
 
+            // Broadcasts logged against a lead plus broadcasts logged in the Marketing Tracker.
             var whatsAppBroadcastsDone = await _context.LeadActivities
                 .CountAsync(a => a.Channel == MarketingChannels.WhatsAppBroadcast
-                    && a.ActivityDate >= periodStart && a.ActivityDate <= periodEnd);
+                    && a.ActivityDate >= periodStart && a.ActivityDate <= periodEnd)
+                + await _context.MarketingPosts
+                .CountAsync(p => p.IsActive && p.Channel == MarketingChannels.WhatsAppBroadcast
+                    && p.PostedOn >= periodStart && p.PostedOn <= periodEnd);
 
             var customersAdded = await _context.Contacts
                 .CountAsync(c => c.IsActive && c.ContactType == ContactTypes.Customer
@@ -93,6 +100,7 @@ namespace MachineProjectAPI.Controllers
                 MachinesSoldByOtherBroker = machinesSoldByOtherBroker,
                 AverageTurnaroundDays = averageTurnaroundDays,
                 PhoneCallsDone = phoneCallsDone,
+                PartnerCallsDone = partnerCallsDone,
                 WhatsAppBroadcastsDone = whatsAppBroadcastsDone,
                 CustomersAdded = customersAdded,
                 MachineDealersAdded = dealersAdded,

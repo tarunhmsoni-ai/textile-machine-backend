@@ -30,7 +30,7 @@ namespace MachineProjectAPI.Models
         public string PreferredLocation { get; set; } = string.Empty;
 
         // Pipeline Status
-        public string Status { get; set; } = "New"; // New, Qualified, Contacted, Factory Visit, Negotiation, Won, Lost
+        public string Status { get; set; } = "New"; // see LeadStatus.All
         public string SubStatus { get; set; } = string.Empty; // Additional details about status
 
         // Per the client's access control: staff can enter leads and work them up
@@ -64,17 +64,17 @@ namespace MachineProjectAPI.Models
         public virtual ICollection<LeadActivity> Activities { get; set; } = new List<LeadActivity>();
     }
 
-    // Lead Status Constants
+    // Lead Status Constants - the client's lead pipeline, in order.
     public static class LeadStatus
     {
-        public const string New = "New";
-        public const string Qualified = "Qualified";
-        public const string Contacted = "Contacted";
-        public const string FactoryVisit = "Factory Visit";
-        public const string Negotiation = "Negotiation";
+        public const string New = "New"; // lead received
         public const string Won = "Won";
         public const string Lost = "Lost";
 
-        public static List<string> All => new() { New, Qualified, Contacted, FactoryVisit, Negotiation, Won, Lost };
+        public static List<string> All => new()
+        {
+            New, "Qualified", "Requirement Entered", "Machines Suggested", "Options Sent", "Phone Call Done",
+            "Visit Planned", "Visit Done", "Liked Machine", "Negotiation", Won, Lost,
+        };
     }
 }

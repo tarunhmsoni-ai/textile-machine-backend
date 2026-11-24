@@ -396,6 +396,171 @@ namespace MachineProjectAPI.Controllers
             return NoContent();
         }
 
+        // ---------- Automatic matching + machine options (client's lead pipeline) ----------
+
+        private static readonly string[] ClosedStages = { "Won", "Lost" };
+
+        // How well a machine fits what a lead asked for. Score 0 means it does not fit.
+        private static (int score, List<string> reasons) Score(Lead l, Machine m)
+        {
+            var reasons = new List<string>();
+            var score = 0;
+            bool Has(string s) => !string.IsNullOrWhiteSpace(s);
+            bool Same(string a, string b) => string.Equals(a?.Trim(), b?.Trim(), StringComparison.OrdinalIgnoreCase);
+            bool Contains(string hay, string needle) => (hay ?? "").Contains((needle ?? "").Trim(), StringComparison.OrdinalIgnoreCase);
+
+            if (Has(l.RequiredMachineType))
+            {
+                if (!Same(l.RequiredMachineType, m.Type)) return (0, reasons);
+                score += 2; reasons.Add("same type");
+            }
+            if (Has(l.RequiredSubType) && Same(l.RequiredSubType, m.SubType)) { score += 3; reasons.Add("same sub-type"); }
+            if (Has(l.RequiredBrand) && Contains(m.Brand, l.RequiredBrand)) { score += 2; reasons.Add("brand"); }
+            if (Has(l.RequiredModel) && Contains(m.Model, l.RequiredModel)) { score += 2; reasons.Add("model"); }
+            if (m.AskingPrice > 0 && (l.BudgetMax ?? 0) > 0 && m.AskingPrice >= (l.BudgetMin ?? 0) && m.AskingPrice <= l.BudgetMax)
+            { score += 2; reasons.Add("within budget"); }
+            if (Has(l.PreferredLocation) && Contains(m.Location, l.PreferredLocation)) { score += 1; reasons.Add("location"); }
+            return score >= 3 ? (score, reasons) : (0, reasons);
+        }
+
+        /// <summary>Live machines that fit this lead's requirement, best first. GET /api/leads/{id}/matches</summary>
+        [HttpGet("{id:int}/matches")]
+        public async Task<IActionResult> MatchesForLead(int id)
+        {
+            var lead = await _context.Leads.FirstOrDefaultAsync(l => l.Id == id && l.IsActive);
+            if (lead == null || (IsStaff && lead.RequirementEntered)) return NotFound(new { message = "Lead not found." });
+
+            var machines = await _context.Machines.Where(m => m.IsActive && m.Status == "Live").ToListAsync();
+            var result = machines.Select(m => (m, r: Score(lead, m))).Where(x => x.r.score > 0)
+                .OrderByDescending(x => x.r.score).Take(10)
+                .Select(x => new
+                {
+                    machineId = x.m.Id,
+                    label = $"{x.m.Brand} {x.m.Model}",
+                    location = x.m.Location,
+                    price = x.m.AskingPrice,
+                    score = x.r.score,
+                    reasons = x.r.reasons,
+                });
+            return Ok(result);
+        }
+
+        /// <summary>Open leads that fit this machine, best first. GET /api/leads/machine-matches/{machineId}</summary>
+        [HttpGet("machine-matches/{machineId:int}")]
+        public async Task<IActionResult> LeadsForMachine(int machineId)
+        {
+            var machine = await _context.Machines.FirstOrDefaultAsync(m => m.Id == machineId && m.IsActive);
+            if (machine == null) return NotFound(new { message = "Machine not found." });
+
+            var leads = await _context.Leads
+                .Where(l => l.IsActive && !ClosedStages.Contains(l.Status) && !(IsStaff && l.RequirementEntered))
+                .ToListAsync();
+            var result = leads.Select(l => (l, r: Score(l, machine))).Where(x => x.r.score > 0)
+                .OrderByDescending(x => x.r.score).Take(20)
+                .Select(x => new
+                {
+                    leadId = x.l.Id,
+                    name = x.l.Name,
+                    phone = x.l.Phone,
+                    whatsApp = x.l.WhatsApp,
+                    status = x.l.Status,
+                    score = x.r.score,
+                    reasons = x.r.reasons,
+                });
+            return Ok(result);
+        }
+
+        public class OptionRequest
+        {
+            public int MachineId { get; set; }
+            public string? Stage { get; set; }
+            public string? Notes { get; set; }
+        }
+
+        private string CurrentName() => User.FindFirst("fullName")?.Value ?? string.Empty;
+
+        private async Task<Lead?> FindVisibleLead(int id)
+        {
+            var lead = await _context.Leads.FirstOrDefaultAsync(l => l.Id == id && l.IsActive);
+            return lead == null || (IsStaff && lead.RequirementEntered) ? null : lead;
+        }
+
+        /// <summary>Machines offered to this lead, with their stage. GET /api/leads/{id}/options</summary>
+        [HttpGet("{id:int}/options")]
+        public async Task<IActionResult> Options(int id)
+        {
+            if (await FindVisibleLead(id) == null) return NotFound(new { message = "Lead not found." });
+            var options = await _context.LeadMachineOptions
+                .Where(o => o.LeadId == id && o.IsActive)
+                .OrderBy(o => o.CreatedAt)
+                .Select(o => new
+                {
+                    id = o.Id,
+                    machineId = o.MachineId,
+                    label = o.Machine!.Brand + " " + o.Machine.Model,
+                    stage = o.Stage,
+                    notes = o.Notes,
+                    by = o.UpdatedByName,
+                    updatedAt = o.UpdatedAt ?? o.CreatedAt,
+                })
+                .ToListAsync();
+            return Ok(options);
+        }
+
+        /// <summary>Offer a machine to a lead. POST /api/leads/{id}/options</summary>
+        [HttpPost("{id:int}/options")]
+        public async Task<IActionResult> AddOption(int id, [FromBody] OptionRequest request)
+        {
+            if (await FindVisibleLead(id) == null) return NotFound(new { message = "Lead not found." });
+            if (!await _context.Machines.AnyAsync(m => m.Id == request.MachineId && m.IsActive))
+                return NotFound(new { message = "Machine not found." });
+
+            var stage = OptionStages.All.FirstOrDefault(s => s == request.Stage) ?? OptionStages.Suggested;
+            var option = await _context.LeadMachineOptions.FirstOrDefaultAsync(o => o.LeadId == id && o.MachineId == request.MachineId);
+            if (option == null)
+            {
+                option = new LeadMachineOption { LeadId = id, MachineId = request.MachineId };
+                _context.LeadMachineOptions.Add(option);
+            }
+            option.IsActive = true;
+            option.Stage = stage;
+            option.UpdatedByName = CurrentName();
+            option.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return Ok(new { id = option.Id });
+        }
+
+        /// <summary>Move an offered machine to another stage. PUT /api/leads/{id}/options/{optionId}</summary>
+        [HttpPut("{id:int}/options/{optionId:int}")]
+        public async Task<IActionResult> UpdateOption(int id, int optionId, [FromBody] OptionRequest request)
+        {
+            if (await FindVisibleLead(id) == null) return NotFound(new { message = "Lead not found." });
+            var option = await _context.LeadMachineOptions.FirstOrDefaultAsync(o => o.Id == optionId && o.LeadId == id && o.IsActive);
+            if (option == null) return NotFound(new { message = "Option not found." });
+
+            var stage = OptionStages.All.FirstOrDefault(s => s == request.Stage);
+            if (stage == null) return BadRequest(new { message = "Unknown stage." });
+            option.Stage = stage;
+            if (request.Notes != null) option.Notes = request.Notes.Trim();
+            option.UpdatedByName = CurrentName();
+            option.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        /// <summary>Stop offering a machine to a lead. DELETE /api/leads/{id}/options/{optionId}</summary>
+        [HttpDelete("{id:int}/options/{optionId:int}")]
+        public async Task<IActionResult> RemoveOption(int id, int optionId)
+        {
+            if (await FindVisibleLead(id) == null) return NotFound(new { message = "Lead not found." });
+            var option = await _context.LeadMachineOptions.FirstOrDefaultAsync(o => o.Id == optionId && o.LeadId == id && o.IsActive);
+            if (option == null) return NotFound();
+            option.IsActive = false;
+            option.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
         private static LeadDto ToDto(Lead l, bool includeActivities = false) => new LeadDto
         {
             Id = l.Id,

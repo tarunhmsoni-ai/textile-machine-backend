@@ -14,7 +14,8 @@ namespace MachineProjectAPI.Models
         public int MachinesSold { get; set; }
         public int MachinesSoldByOtherBroker { get; set; }
         public double? AverageTurnaroundDays { get; set; }
-        public int PhoneCallsDone { get; set; }
+        public int PhoneCallsDone { get; set; } // lead calls + referral-partner calls
+        public int PartnerCallsDone { get; set; }
         public int WhatsAppBroadcastsDone { get; set; }
         public int CustomersAdded { get; set; }
         public int MachineDealersAdded { get; set; }

@@ -20,6 +20,8 @@ namespace MachineProjectAPI.Data
         public DbSet<StaffAccessIp> StaffAccessIps { get; set; } = null!;
         public DbSet<Subscriber> Subscribers { get; set; } = null!;
         public DbSet<MarketingPost> MarketingPosts { get; set; } = null!;
+        public DbSet<LeadMachineOption> LeadMachineOptions { get; set; } = null!;
+        public DbSet<PartnerCall> PartnerCalls { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -77,6 +79,24 @@ namespace MachineProjectAPI.Data
                 .WithMany(rp => rp.Leads)
                 .HasForeignKey(l => l.ReferralPartnerId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<MarketingPost>(e =>
+            {
+                e.Property(p => p.Channel).HasMaxLength(100);
+                e.HasIndex(p => p.PostedOn);
+                e.HasOne(p => p.Machine).WithMany().HasForeignKey(p => p.MachineId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<LeadMachineOption>(e =>
+            {
+                e.Property(o => o.Stage).HasMaxLength(50);
+                e.HasIndex(o => new { o.LeadId, o.MachineId }).IsUnique();
+                e.HasOne(o => o.Lead).WithMany().HasForeignKey(o => o.LeadId).OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(o => o.Machine).WithMany().HasForeignKey(o => o.MachineId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<PartnerCall>()
+                .HasOne(c => c.Partner).WithMany().HasForeignKey(c => c.PartnerId).OnDelete(DeleteBehavior.Cascade);
 
             // LeadActivity relationships
             modelBuilder.Entity<LeadActivity>()

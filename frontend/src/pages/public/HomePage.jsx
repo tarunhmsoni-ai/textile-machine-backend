@@ -304,7 +304,7 @@ const HomePage = () => {
             className="ind-hero__sell-note"
           >
             Have a machine to sell?{' '}
-            <button type="button" onClick={() => navigate('/admin/post-machine')}>
+            <button type="button" onClick={() => navigate('/sell')}>
               List it here →
             </button>
           </motion.p>
@@ -337,7 +337,7 @@ const HomePage = () => {
         >
           <h3>Sell</h3>
           <p>Have a machine to sell? List it with us and we'll find the right buyer.</p>
-          <AnimatedButton variant="ghost" className="ind-cta-card__btn" onClick={() => navigate('/admin/post-machine')}>
+          <AnimatedButton variant="ghost" className="ind-cta-card__btn" onClick={() => navigate('/sell')}>
             SELL YOUR MACHINE
           </AnimatedButton>
         </motion.div>
@@ -494,7 +494,7 @@ const HomePage = () => {
       {/* Selling is a small, low-emphasis line — this site is buyer-first */}
       <p className="ind-sell-line">
         Have a machine to sell? Call/WhatsApp {whatsappContact}, email nikhhilkgarg@gmail.com, or{' '}
-        <button type="button" onClick={() => navigate('/admin/post-machine')}>post it directly →</button>
+        <button type="button" onClick={() => navigate('/sell')}>post it directly →</button>
       </p>
 
       {/* ---------- Newsletter ---------- */}
@@ -573,7 +573,7 @@ const HomePage = () => {
             <h3>Quick Links</h3>
             <button onClick={() => navigate('/machines')}>Machines</button>
             <button onClick={() => scrollTo('categories')}>Categories</button>
-            <button onClick={() => navigate('/admin/post-machine')}>Sell Machine</button>
+            <button onClick={() => navigate('/sell')}>Sell Machine</button>
             <button onClick={() => scrollTo('about')}>About</button>
             <button onClick={() => scrollTo('contact')}>Contact</button>
           </div>

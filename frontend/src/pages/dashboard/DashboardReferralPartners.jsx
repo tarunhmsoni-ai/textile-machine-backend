@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import PartnerCalls from './DashboardPartnerCalls';
 import apiClient from '../../services/apiClient';
 
 // Mirrors MachineProjectAPI.Models.ReferralPartnerTypes.
@@ -217,6 +218,8 @@ export function ReferralPartners({ onToast }) {
                   Owed: ₹{Number(p.commissionOwed).toLocaleString('en-IN')}
                 </span>
               </div>
+
+              <PartnerCalls partnerId={p.id} onToast={onToast} />
 
               {p.commissionOwed > 0 && (
                 <div className="ref-partners__pay-row">

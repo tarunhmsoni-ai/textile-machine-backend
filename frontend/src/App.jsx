@@ -6,6 +6,7 @@ import Dashboard from './pages/dashboard/Dashboard';
 import HomePage from './pages/public/HomePage';
 import MachineListings from './pages/public/MachineListings';
 import MachineDetail from './pages/public/MachineDetail';
+import SellMachine from './pages/public/SellMachine';
 import PostMachine from './pages/admin/PostMachine';
 import CustomCursor from './components/CustomCursor';
 
@@ -35,6 +36,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/machines" element={<MachineListings />} />
         <Route path="/machines/:id" element={<MachineDetail />} />
+        <Route path="/sell" element={<SellMachine />} />
         <Route path="/admin/login" element={<Login onLoginSuccess={() => setIsAuthenticated(true)} />} />
 
         {/* Protected Routes */}

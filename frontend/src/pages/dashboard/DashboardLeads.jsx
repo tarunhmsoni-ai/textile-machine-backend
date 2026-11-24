@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import apiClient from '../../services/apiClient';
+import LeadMachineOptions from './DashboardLeadOptions';
 
 // Mirrors MachineProjectAPI.Models.LeadStatus / ActivityTypes / MarketingChannels — keep in sync with the backend.
-const STAGES = ['New', 'Qualified', 'Contacted', 'Factory Visit', 'Negotiation', 'Won', 'Lost'];
+const STAGES = [
+  'New', 'Qualified', 'Requirement Entered', 'Machines Suggested', 'Options Sent', 'Phone Call Done',
+  'Visit Planned', 'Visit Done', 'Liked Machine', 'Negotiation', 'Won', 'Lost',
+];
 const ACTIVITY_TYPES = [
   'Phone Call', 'WhatsApp', 'Email', 'Factory Visit', 'Direct Meeting', 'Marketing Post', 'Negotiation', 'Deal', 'Other',
 ];
 // Fixed channel list so the KPI dashboard's "WhatsApp Broadcast" count matches exactly.
 const MARKETING_CHANNELS = [
-  'WhatsApp Status', 'WhatsApp Broadcast', 'Facebook Group', 'Facebook Page',
+  'WhatsApp Status', 'WhatsApp Broadcast', 'WhatsApp Group', 'Facebook Group', 'Facebook Page',
   'Instagram Page', 'YouTube', 'Phone Call', 'Direct Outreach', 'Other',
 ];
 
@@ -255,6 +259,8 @@ export function LeadsPipeline({ onToast }) {
                 ))}
               </select>
             </div>
+
+            <LeadMachineOptions leadId={selectedLead.id} onToast={onToast} />
 
             <h4>Log an activity</h4>
             <form onSubmit={submitActivity} className="leads-pipeline__activity-form">
