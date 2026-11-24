@@ -19,6 +19,7 @@ namespace MachineProjectAPI.Data
         public DbSet<Contact> Contacts { get; set; } = null!;
         public DbSet<StaffAccessIp> StaffAccessIps { get; set; } = null!;
         public DbSet<Subscriber> Subscribers { get; set; } = null!;
+        public DbSet<MarketingPost> MarketingPosts { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

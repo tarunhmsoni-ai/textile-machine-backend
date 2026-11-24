@@ -6,6 +6,7 @@ import apiClient from '../../services/apiClient';
 import { DashboardHome } from './DashboardPages';
 import MachineInventory from './DashboardMachines';
 import Subscribers from './DashboardSubscribers';
+import MarketingTracker from './DashboardMarketing';
 import { LeadsPipeline } from './DashboardLeads';
 import { KpiDashboard } from './DashboardKpi';
 import { ReferralPartners } from './DashboardReferralPartners';
@@ -14,6 +15,7 @@ import { StaffAccess } from './DashboardStaffAccess';
 const NAV_ITEMS = [
   { id: 'dashboard', label: '🏠 Dashboard', subtitle: 'A quick look at your machines and leads.' },
   { id: 'machines', label: '🏭 Machine Inventory', subtitle: 'Edit machines, change their status and take them off the website.' },
+  { id: 'marketing', label: '📣 Marketing Tracker', subtitle: 'Which machine was promoted where, and when.' },
   { id: 'leads', label: '🧭 Leads & Pipeline', subtitle: 'Buyer enquiries from the website, phone and WhatsApp.' },
   { id: 'kpi', label: '📊 KPI Dashboard', subtitle: 'Performance for any period. Visible to admin only.', adminOnly: true },
   { id: 'referrals', label: '🤝 Referral Partners', subtitle: 'People who bring leads and get paid when a deal matures.' },
@@ -111,6 +113,7 @@ export default function Dashboard({ onLogout }) {
           {activePage === 'machines' && (
             <MachineInventory onToast={showToast} onChanged={() => setRefreshKey((k) => k + 1)} />
           )}
+          {activePage === 'marketing' && <MarketingTracker onToast={showToast} />}
           {activePage === 'leads' && <LeadsPipeline onToast={showToast} />}
           {activePage === 'kpi' && isAdmin && <KpiDashboard onToast={showToast} />}
           {activePage === 'referrals' && <ReferralPartners onToast={showToast} />}

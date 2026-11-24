@@ -484,6 +484,50 @@ namespace MachineProjectAPI.Migrations
                     b.ToTable("Machines");
                 });
 
+            modelBuilder.Entity("MachineProjectAPI.Models.MarketingPost", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedByName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("MachineId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("PostedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MachineId");
+
+                    b.HasIndex("PostedOn");
+
+                    b.ToTable("MarketingPosts");
+                });
+
             modelBuilder.Entity("MachineProjectAPI.Models.ReferralPartner", b =>
                 {
                     b.Property<int>("Id")
@@ -667,6 +711,17 @@ namespace MachineProjectAPI.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("MachineProjectAPI.Models.MarketingPost", b =>
+                {
+                    b.HasOne("MachineProjectAPI.Models.Machine", "Machine")
+                        .WithMany()
+                        .HasForeignKey("MachineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Machine");
                 });
 
             modelBuilder.Entity("MachineProjectAPI.Models.Lead", b =>

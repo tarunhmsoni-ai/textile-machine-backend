@@ -44,12 +44,13 @@ namespace MachineProjectAPI.Models
         public const string FacebookPage = "Facebook Page";
         public const string InstagramPage = "Instagram Page";
         public const string YouTube = "YouTube";
+        public const string WhatsAppGroup = "WhatsApp Group";
         public const string PhoneCall = "Phone Call";
         public const string DirectOutreach = "Direct Outreach";
 
         public static List<string> All => new()
         {
-            WhatsAppStatus, WhatsAppBroadcast, FacebookGroup, FacebookPage,
+            WhatsAppStatus, WhatsAppBroadcast, WhatsAppGroup, FacebookGroup, FacebookPage,
             InstagramPage, YouTube, PhoneCall, DirectOutreach
         };
     }
