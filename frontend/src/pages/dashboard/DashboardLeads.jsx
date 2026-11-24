@@ -5,7 +5,7 @@ import LeadMachineOptions from './DashboardLeadOptions';
 // Mirrors MachineProjectAPI.Models.LeadStatus / ActivityTypes / MarketingChannels — keep in sync with the backend.
 const STAGES = [
   'New', 'Qualified', 'Requirement Entered', 'Machines Suggested', 'Options Sent', 'Phone Call Done',
-  'Visit Planned', 'Visit Done', 'Liked Machine', 'Negotiation', 'Won', 'Lost',
+  'Visit Planned', 'Visit Done', 'Liked Machine', 'Find Another Machine', 'Negotiation', 'Won', 'Lost',
 ];
 const ACTIVITY_TYPES = [
   'Phone Call', 'WhatsApp', 'Email', 'Factory Visit', 'Direct Meeting', 'Marketing Post', 'Negotiation', 'Deal', 'Other',

@@ -74,7 +74,7 @@ namespace MachineProjectAPI.Models
         public static List<string> All => new()
         {
             New, "Qualified", "Requirement Entered", "Machines Suggested", "Options Sent", "Phone Call Done",
-            "Visit Planned", "Visit Done", "Liked Machine", "Negotiation", Won, Lost,
+            "Visit Planned", "Visit Done", "Liked Machine", "Find Another Machine", "Negotiation", Won, Lost,
         };
     }
 }

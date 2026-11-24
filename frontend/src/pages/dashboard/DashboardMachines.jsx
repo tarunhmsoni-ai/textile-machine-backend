@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import apiClient from '../../services/apiClient';
+import { getSpecFields } from '../admin/PostMachine';
 
 // Same list the backend accepts at PUT /api/machines/{id}/status.
 // Pipeline order; 'Live' needs at least 3 photos (the server checks).
@@ -24,6 +25,8 @@ export default function MachineInventory({ onToast, onChanged }) {
   const [saving, setSaving] = useState(false);
   const [newPhotos, setNewPhotos] = useState([]);
   const [buyers, setBuyers] = useState(null);
+  const [specs, setSpecs] = useState({});
+  const [history, setHistory] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -98,6 +101,9 @@ export default function MachineInventory({ onToast, onChanged }) {
   const openEdit = (m) => {
     setEditing(m);
     setNewPhotos([]);
+    setSpecs({ ...(m.specifications || {}) });
+    setHistory(null);
+    apiClient.get(`/machines/${m.id}/history`).then((r) => setHistory(r.data || [])).catch(() => setHistory([]));
     setForm({
       brand: m.brand || '',
       model: m.model || '',
@@ -140,6 +146,14 @@ export default function MachineInventory({ onToast, onChanged }) {
       newPhotos.forEach((f) => fd.append('Photos', f));
       fd.append('Description', form.description);
       fd.append('Condition', form.condition);
+      // Keep every existing specification, then apply the edits (cleared field = removed).
+      const merged = { ...(editing.specifications || {}), condition: form.condition };
+      getSpecFields(editing.subtype).forEach((f) => {
+        const v = (specs[f.key] || '').trim();
+        if (v) merged[f.key] = v;
+        else delete merged[f.key];
+      });
+      fd.append('SpecificationsJson', JSON.stringify(merged));
       fd.append('SellerName', form.sellerName);
       fd.append('SellerPhone', form.sellerPhone);
       fd.append('SellerEmail', form.sellerEmail);
@@ -270,7 +284,7 @@ export default function MachineInventory({ onToast, onChanged }) {
             <button className="leads-pipeline__close" onClick={() => setEditing(null)}>✕</button>
             <h3>Edit {editing.brand} {editing.model}</h3>
             <p className="muted">
-              {capitalize(editing.type)} · {editing.subtype}. Photos, video and technical specifications stay as they are.
+              {capitalize(editing.type)} · {editing.subtype}. Video stays as it is.
             </p>
             <form onSubmit={save} className="leads-pipeline__activity-form" style={{ flexDirection: 'column' }}>
               <input placeholder="Brand *" value={form.brand} onChange={set('brand')} required />
@@ -285,6 +299,16 @@ export default function MachineInventory({ onToast, onChanged }) {
                 ))}
               </select>
               <textarea placeholder="Description" rows="3" value={form.description} onChange={set('description')} />
+              {getSpecFields(editing.subtype).length > 0 && <b>Technical specifications</b>}
+              {getSpecFields(editing.subtype).map((f) => (
+                <input
+                  key={f.key}
+                  placeholder={f.label}
+                  title={f.label}
+                  value={specs[f.key] || ''}
+                  onChange={(e) => setSpecs((prev) => ({ ...prev, [f.key]: e.target.value }))}
+                />
+              ))}
               <label className="muted">
                 Photos: {(editing.photos || []).length} now. Choose 3 or more to replace them (optional).
                 <input type="file" accept="image/*" multiple onChange={(e) => setNewPhotos(Array.from(e.target.files))} />
@@ -295,6 +319,22 @@ export default function MachineInventory({ onToast, onChanged }) {
               <input placeholder="Seller email" value={form.sellerEmail} onChange={set('sellerEmail')} />
               <button type="submit" className="btn primary" disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</button>
             </form>
+
+            <h4>Stage history</h4>
+            {history === null ? (
+              <p className="muted">Loading…</p>
+            ) : history.length === 0 ? (
+              <p className="muted">No stage changes recorded yet.</p>
+            ) : (
+              <ul className="leads-pipeline__activity-list">
+                {history.map((h, i) => (
+                  <li key={i}>
+                    {h.from ? `${h.from} → ` : ''}<b>{h.to}</b>
+                    <div className="muted">{h.by || 'unknown'} · {new Date(h.at.endsWith('Z') ? h.at : `${h.at}Z`).toLocaleString('en-IN')}</div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       )}

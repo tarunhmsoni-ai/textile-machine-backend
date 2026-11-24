@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import apiClient from '../../services/apiClient';
 
+// Mirrors MachineProjectAPI.Models.PartnerCallOutcomes.
+const OUTCOMES = ['Promised a lead', 'Call back later', 'Not reachable', 'Not interested', 'Gave a lead'];
 const today = () => new Date().toISOString().slice(0, 10);
 const fmt = (s) => new Date(s).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
@@ -10,6 +12,7 @@ export default function PartnerCalls({ partnerId, onToast }) {
   const [calls, setCalls] = useState(null);
   const [date, setDate] = useState(today());
   const [notes, setNotes] = useState('');
+  const [outcome, setOutcome] = useState('');
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
@@ -29,8 +32,9 @@ export default function PartnerCalls({ partnerId, onToast }) {
     e.preventDefault();
     setSaving(true);
     try {
-      await apiClient.post(`/referral-partners/${partnerId}/calls`, { calledOn: date, notes });
+      await apiClient.post(`/referral-partners/${partnerId}/calls`, { calledOn: date, outcome, notes });
       setNotes('');
+      setOutcome('');
       onToast?.('Call logged.');
       await load();
     } catch (err) {
@@ -58,6 +62,10 @@ export default function PartnerCalls({ partnerId, onToast }) {
         <div style={{ marginTop: 8 }}>
           <form onSubmit={add} className="leads-pipeline__activity-form">
             <input type="date" value={date} max={today()} onChange={(e) => setDate(e.target.value)} />
+            <select value={outcome} onChange={(e) => setOutcome(e.target.value)}>
+              <option value="">Result of the call…</option>
+              {OUTCOMES.map((o) => <option key={o}>{o}</option>)}
+            </select>
             <input placeholder="What was discussed? (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} />
             <button type="submit" className="btn primary small" disabled={saving}>Log call</button>
           </form>
@@ -69,7 +77,7 @@ export default function PartnerCalls({ partnerId, onToast }) {
             ) : (
               calls.map((c) => (
                 <li key={c.id}>
-                  <b>{fmt(c.calledOn)}</b>{c.by && ` · ${c.by}`}
+                  <b>{fmt(c.calledOn)}</b>{c.outcome && ` · ${c.outcome}`}{c.by && ` · ${c.by}`}
                   {c.notes && <div className="muted">{c.notes}</div>}
                   <button type="button" className="btn danger small" onClick={() => remove(c)}>Remove</button>
                 </li>

@@ -22,6 +22,7 @@ namespace MachineProjectAPI.Data
         public DbSet<MarketingPost> MarketingPosts { get; set; } = null!;
         public DbSet<LeadMachineOption> LeadMachineOptions { get; set; } = null!;
         public DbSet<PartnerCall> PartnerCalls { get; set; } = null!;
+        public DbSet<MachineStageLog> MachineStageLogs { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -93,6 +94,14 @@ namespace MachineProjectAPI.Data
                 e.HasIndex(o => new { o.LeadId, o.MachineId }).IsUnique();
                 e.HasOne(o => o.Lead).WithMany().HasForeignKey(o => o.LeadId).OnDelete(DeleteBehavior.Cascade);
                 e.HasOne(o => o.Machine).WithMany().HasForeignKey(o => o.MachineId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<PartnerCall>().Property(c => c.Outcome).HasMaxLength(50);
+
+            modelBuilder.Entity<MachineStageLog>(e =>
+            {
+                e.HasIndex(l => l.MachineId);
+                e.HasOne(l => l.Machine).WithMany().HasForeignKey(l => l.MachineId).OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<PartnerCall>()

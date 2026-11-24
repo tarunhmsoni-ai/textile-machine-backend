@@ -112,6 +112,7 @@ namespace MachineProjectAPI.Controllers
         public class PartnerCallRequest
         {
             public DateTime? CalledOn { get; set; }
+            public string? Outcome { get; set; }
             public string? Notes { get; set; }
         }
 
@@ -121,7 +122,7 @@ namespace MachineProjectAPI.Controllers
         {
             var calls = await _context.PartnerCalls.Where(c => c.PartnerId == id && c.IsActive)
                 .OrderByDescending(c => c.CalledOn).ThenByDescending(c => c.Id)
-                .Select(c => new { id = c.Id, calledOn = c.CalledOn, notes = c.Notes, by = c.CreatedByName })
+                .Select(c => new { id = c.Id, calledOn = c.CalledOn, outcome = c.Outcome, notes = c.Notes, by = c.CreatedByName })
                 .ToListAsync();
             return Ok(calls);
         }
@@ -140,6 +141,7 @@ namespace MachineProjectAPI.Controllers
             {
                 PartnerId = id,
                 CalledOn = day,
+                Outcome = PartnerCallOutcomes.All.FirstOrDefault(o => o == request.Outcome) ?? string.Empty,
                 Notes = request.Notes?.Trim() ?? string.Empty,
                 CreatedByName = User.FindFirst("fullName")?.Value ?? string.Empty,
             });

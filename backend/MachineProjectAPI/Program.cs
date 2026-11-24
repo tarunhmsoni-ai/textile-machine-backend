@@ -94,7 +94,15 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+// A bare [Authorize] means "office team": Admin or Staff. Website sellers (role Seller) are
+// rejected everywhere except endpoints that explicitly allow the Seller role.
+builder.Services.AddAuthorization(options =>
+{
+    options.DefaultPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .RequireRole(UserRoles.Admin, UserRoles.Staff)
+        .Build();
+});
 
 var app = builder.Build();
 

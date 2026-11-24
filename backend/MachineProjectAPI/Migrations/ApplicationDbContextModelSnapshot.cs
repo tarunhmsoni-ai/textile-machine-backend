@@ -484,6 +484,45 @@ namespace MachineProjectAPI.Migrations
                     b.ToTable("Machines");
                 });
 
+            modelBuilder.Entity("MachineProjectAPI.Models.MachineStageLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ByName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("FromStatus")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("MachineId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ToStatus")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MachineId");
+
+                    b.ToTable("MachineStageLogs");
+                });
+
             modelBuilder.Entity("MachineProjectAPI.Models.MarketingPost", b =>
                 {
                     b.Property<int>("Id")
@@ -591,6 +630,10 @@ namespace MachineProjectAPI.Migrations
                     b.Property<string>("Notes")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<string>("Outcome")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
 
                     b.Property<int>("PartnerId")
                         .HasColumnType("int");
@@ -824,6 +867,17 @@ namespace MachineProjectAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Partner");
+                });
+
+            modelBuilder.Entity("MachineProjectAPI.Models.MachineStageLog", b =>
+                {
+                    b.HasOne("MachineProjectAPI.Models.Machine", "Machine")
+                        .WithMany()
+                        .HasForeignKey("MachineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Machine");
                 });
 
             modelBuilder.Entity("MachineProjectAPI.Models.MarketingPost", b =>

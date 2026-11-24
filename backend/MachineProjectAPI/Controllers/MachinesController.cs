@@ -185,6 +185,7 @@ namespace MachineProjectAPI.Controllers
             };
 
             _context.Machines.Add(machine);
+            LogStage(machine, string.Empty, machine.Status);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetMachine), new { id = machine.Id }, ToDetailDto(machine));
@@ -299,6 +300,15 @@ namespace MachineProjectAPI.Controllers
 
         private const int MinPhotos = 3;
 
+        // The client's machine pipeline, in order. Moving forward must go one step at a time.
+        private static readonly string[] Pipeline =
+            { "Received", "Data Entry", "Owner Contacted", "Media Ready", "Verified", "Condition Checked", "Live" };
+
+        private string CurrentName() => User.FindFirst("fullName")?.Value ?? string.Empty;
+
+        private void LogStage(Machine machine, string from, string to) =>
+            _context.MachineStageLogs.Add(new MachineStageLog { Machine = machine, FromStatus = from, ToStatus = to, ByName = CurrentName() });
+
         private int? CurrentUserId()
         {
             var claim = User.FindFirst("sub") ?? User.FindFirst("nameid") ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -329,11 +339,22 @@ namespace MachineProjectAPI.Controllers
                 return NotFound(new { message = "Machine not found." });
             }
 
+            var oldIndex = Array.IndexOf(Pipeline, machine.Status);
+            var newIndex = Array.IndexOf(Pipeline, status);
+            if (newIndex >= 0 && oldIndex >= 0 && newIndex > oldIndex + 1)
+            {
+                return BadRequest(new { message = $"Please move one step at a time. The next step after \"{machine.Status}\" is \"{Pipeline[oldIndex + 1]}\"." });
+            }
+            if (status == "Live" && oldIndex < 0 && machine.DateLive == null)
+            {
+                return BadRequest(new { message = "This machine has not been through the pipeline yet. Move it step by step to Live." });
+            }
             if (status == "Live" && machine.Photos.Count < MinPhotos)
             {
                 return BadRequest(new { message = $"A machine needs at least {MinPhotos} photos before it can go Live. Edit the machine and add photos first." });
             }
 
+            if (machine.Status != status) LogStage(machine, machine.Status, status);
             machine.Status = status;
             machine.UpdatedByUserId = CurrentUserId();
             if (status == "Live" && machine.DateLive == null) machine.DateLive = DateTime.UtcNow;
@@ -342,6 +363,21 @@ namespace MachineProjectAPI.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(ToDetailDto(machine));
+        }
+
+        /// <summary>
+        /// Who moved this machine through which step, and when. Requires login.
+        /// GET /api/machines/{id}/history
+        /// </summary>
+        [HttpGet("{id:int}/history")]
+        [Authorize]
+        public async Task<IActionResult> History(int id)
+        {
+            var log = await _context.MachineStageLogs.Where(l => l.MachineId == id)
+                .OrderBy(l => l.CreatedAt).ThenBy(l => l.Id)
+                .Select(l => new { from = l.FromStatus, to = l.ToStatus, by = l.ByName, at = l.CreatedAt })
+                .ToListAsync();
+            return Ok(log);
         }
 
         /// <summary>
@@ -361,6 +397,7 @@ namespace MachineProjectAPI.Controllers
 
             machine.SoldByOtherBroker = true;
             machine.UpdatedByUserId = CurrentUserId();
+            LogStage(machine, machine.Status, "Archived (sold by another broker)");
             machine.Status = "Archived";
             machine.DateSold = DateTime.UtcNow;
             machine.LastModified = DateTime.UtcNow;

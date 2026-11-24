@@ -112,6 +112,7 @@ namespace MachineProjectAPI.Controllers
         public async Task<ActionResult<object>> GetUsers()
         {
             var users = await _context.Users
+                .Where(u => u.Role != UserRoles.Seller)
                 .OrderByDescending(u => u.CreatedAt)
                 .Select(u => new { u.Id, u.FullName, u.Username, u.Role, u.IsActive, u.CreatedAt })
                 .ToListAsync();

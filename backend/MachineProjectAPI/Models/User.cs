@@ -14,5 +14,7 @@ namespace MachineProjectAPI.Models
     {
         public const string Admin = "Admin";
         public const string Staff = "Staff";
+        // A visitor who signed up on the website to offer machines. Can only use the /api/sell endpoints.
+        public const string Seller = "Seller";
     }
 }

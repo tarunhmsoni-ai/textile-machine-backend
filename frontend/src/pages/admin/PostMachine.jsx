@@ -160,7 +160,7 @@ const SPEC_FIELDS = {
   Beamer: [],
 };
 
-const getSpecFields = (subType) => SPEC_FIELDS[subType] || [];
+export const getSpecFields = (subType) => SPEC_FIELDS[subType] || [];
 
 const buildSpecTemplate = (subType) => {
   const template = { condition: 'Good' };

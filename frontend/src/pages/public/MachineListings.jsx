@@ -21,7 +21,9 @@ const MachineListings = () => {
     search: searchParams.get('search') || '',
     minPrice: '',
     maxPrice: '',
-    location: ''
+    location: '',
+    subtype: '',
+    brand: ''
   });
 
   const machineTypes = [
@@ -69,12 +71,21 @@ const MachineListings = () => {
   };
 
   const handleFilterChange = (field, value) => {
-    setFilters({ ...filters, [field]: value });
+    setFilters({ ...filters, [field]: value, ...(field === 'type' ? { subtype: '' } : {}) });
   };
 
   const handleContactSeller = (machineId) => {
     navigate(`/machines/${machineId}`);
   };
+
+  // Sub-type and brand narrow the list already loaded (type/search/price/location are asked of the server).
+  const subtypeOptions = filters.type
+    ? machineTypes.find((t) => t.id === filters.type)?.subtypes || []
+    : machineTypes.flatMap((t) => t.subtypes);
+  const brandOptions = [...new Set(machines.map((m) => m.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const visible = machines.filter(
+    (m) => (!filters.subtype || m.subtype === filters.subtype) && (!filters.brand || m.brand === filters.brand)
+  );
 
   const activeTypeName = machineTypes.find((t) => t.id === filters.type)?.name;
 
@@ -119,6 +130,26 @@ const MachineListings = () => {
           </div>
 
           <div className="filter-group">
+            <label>Sub-type</label>
+            <select value={filters.subtype} onChange={(e) => handleFilterChange('subtype', e.target.value)}>
+              <option value="">All sub-types</option>
+              {subtypeOptions.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="filter-group">
+            <label>Brand</label>
+            <select value={filters.brand} onChange={(e) => handleFilterChange('brand', e.target.value)}>
+              <option value="">All brands</option>
+              {brandOptions.map((b) => (
+                <option key={b} value={b}>{b}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="filter-group">
             <label>Location</label>
             <input
               type="text"
@@ -147,7 +178,7 @@ const MachineListings = () => {
             </div>
           </div>
 
-          <button className="clear-filters-btn" onClick={() => setFilters({type: '', search: '', minPrice: '', maxPrice: '', location: ''})}>
+          <button className="clear-filters-btn" onClick={() => setFilters({type: '', search: '', minPrice: '', maxPrice: '', location: '', subtype: '', brand: ''})}>
             Clear Filters
           </button>
           </aside>
@@ -162,7 +193,7 @@ const MachineListings = () => {
               <p>Couldn't load listings right now — please refresh the page.</p>
               <button onClick={() => fetchMachines()}>Retry</button>
             </div>
-          ) : machines.length === 0 ? (
+          ) : visible.length === 0 ? (
             <div className="no-results">
               <p>No machines found matching your criteria</p>
               <button onClick={() => navigate('/')}>Browse All Categories</button>
@@ -170,10 +201,10 @@ const MachineListings = () => {
           ) : (
             <>
               <div className="results-info">
-                <p>Found {machines.length} machine{machines.length !== 1 ? 's' : ''}</p>
+                <p>Found {visible.length} machine{visible.length !== 1 ? 's' : ''}</p>
               </div>
               <div className="machines-list">
-                {machines.map((machine) => (
+                {visible.map((machine) => (
                   <div key={machine.id} className="machine-card">
                     <div className="machine-image">
                       <div className="machine-card__image-wrap">
