@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import apiClient from '../../services/apiClient';
 
 // Same list the backend accepts at PUT /api/machines/{id}/status.
-const STATUSES = ['Draft', 'Verified', 'Live', 'Sold', 'Archived'];
+// Pipeline order; 'Live' needs at least 3 photos (the server checks).
+const STATUSES = ['Received', 'Data Entry', 'Owner Contacted', 'Media Ready', 'Verified', 'Condition Checked', 'Live', 'Sold', 'Archived'];
 
 const capitalize = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 const formatPrice = (p) => (p ? `₹${Number(p).toLocaleString('en-IN')}` : 'On request');
@@ -21,6 +22,7 @@ export default function MachineInventory({ onToast, onChanged }) {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [newPhotos, setNewPhotos] = useState([]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -54,8 +56,8 @@ export default function MachineInventory({ onToast, onChanged }) {
       await apiClient.put(`/machines/${m.id}/status`, { status });
       onToast?.(`${m.brand} ${m.model} is now ${status}.`);
       await refreshAll();
-    } catch {
-      onToast?.('Could not change the status — please try again.');
+    } catch (err) {
+      onToast?.(err?.response?.data?.message || 'Could not change the status — please try again.');
     }
   };
 
@@ -83,6 +85,7 @@ export default function MachineInventory({ onToast, onChanged }) {
 
   const openEdit = (m) => {
     setEditing(m);
+    setNewPhotos([]);
     setForm({
       brand: m.brand || '',
       model: m.model || '',
@@ -107,6 +110,10 @@ export default function MachineInventory({ onToast, onChanged }) {
       onToast?.('Seller name and phone are required.');
       return;
     }
+    if (newPhotos.length > 0 && newPhotos.length < 3) {
+      onToast?.('Please choose at least 3 photos.');
+      return;
+    }
     setSaving(true);
     try {
       const fd = new FormData();
@@ -118,6 +125,7 @@ export default function MachineInventory({ onToast, onChanged }) {
       fd.append('Location', form.location);
       if (form.price !== '') fd.append('AskingPrice', form.price);
       if (form.quantity) fd.append('Quantity', form.quantity);
+      newPhotos.forEach((f) => fd.append('Photos', f));
       fd.append('Description', form.description);
       fd.append('Condition', form.condition);
       fd.append('SellerName', form.sellerName);
@@ -174,13 +182,14 @@ export default function MachineInventory({ onToast, onChanged }) {
               <th>Location</th>
               <th>Price</th>
               <th>Status</th>
+              <th>Posted / updated by</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={10} className="muted">
+                <td colSpan={11} className="muted">
                   {machines.length === 0 ? 'No machines yet. Use "Post Machine" to add the first one.' : 'No machines match your search.'}
                 </td>
               </tr>
@@ -201,6 +210,10 @@ export default function MachineInventory({ onToast, onChanged }) {
                         <option key={s}>{s}</option>
                       ))}
                     </select>
+                  </td>
+                  <td>
+                    {m.postedBy || '—'}
+                    {m.updatedBy && m.updatedBy !== m.postedBy && <div className="muted">updated: {m.updatedBy}</div>}
                   </td>
                   <td style={{ whiteSpace: 'nowrap' }}>
                     <button type="button" className="btn small" onClick={() => openEdit(m)}>Edit</button>{' '}
@@ -235,6 +248,10 @@ export default function MachineInventory({ onToast, onChanged }) {
                 ))}
               </select>
               <textarea placeholder="Description" rows="3" value={form.description} onChange={set('description')} />
+              <label className="muted">
+                Photos: {(editing.photos || []).length} now. Choose 3 or more to replace them (optional).
+                <input type="file" accept="image/*" multiple onChange={(e) => setNewPhotos(Array.from(e.target.files))} />
+              </label>
               <input placeholder="Seller name *" value={form.sellerName} onChange={set('sellerName')} required />
               <input placeholder="Seller phone *" value={form.sellerPhone} onChange={set('sellerPhone')} required />
               <input placeholder="Seller WhatsApp" value={form.sellerWhatsApp} onChange={set('sellerWhatsApp')} />

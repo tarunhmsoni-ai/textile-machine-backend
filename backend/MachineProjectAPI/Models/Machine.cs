@@ -33,7 +33,7 @@ namespace MachineProjectAPI.Models
         public string SpecificationsJson { get; set; } = "{}";
 
         // Machine Status
-        public string Status { get; set; } = "Draft"; // Draft, Verified, Live, Sold, Archived
+        public string Status { get; set; } = "Received"; // see MachinesController.AllowedStatuses for the pipeline
         public DateTime? DateLive { get; set; }
         public DateTime? DateSold { get; set; }
         // Set when the machine was sold by another broker rather than through us —
@@ -49,7 +49,9 @@ namespace MachineProjectAPI.Models
         public int ViewCount { get; set; } = 0;
         public int InquiryCount { get; set; } = 0;
 
+        public int? UpdatedByUserId { get; set; }
         public virtual User? PostedByUser { get; set; }
+        public virtual User? UpdatedByUser { get; set; }
         public virtual ICollection<Lead> Leads { get; set; } = new List<Lead>();
     }
 

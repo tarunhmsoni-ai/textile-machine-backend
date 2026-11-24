@@ -129,6 +129,11 @@ namespace MachineProjectAPI.Controllers
                 return BadRequest(new { message = "Year manufactured is required." });
             }
 
+            if ((request.Photos?.Count ?? 0) < MinPhotos)
+            {
+                return BadRequest(new { message = $"Please upload at least {MinPhotos} photos." });
+            }
+
             var photoUrls = new List<string>();
             if (request.Photos != null)
             {
@@ -153,8 +158,7 @@ namespace MachineProjectAPI.Controllers
                 }
             }
 
-            var userIdClaim = User.FindFirst("sub") ?? User.FindFirst("nameid") ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            int? postedByUserId = userIdClaim != null && int.TryParse(userIdClaim.Value, out var uid) ? uid : null;
+            var postedByUserId = CurrentUserId();
 
             var machine = new Machine
             {
@@ -175,9 +179,9 @@ namespace MachineProjectAPI.Controllers
                 SpecificationsJson = string.IsNullOrWhiteSpace(request.SpecificationsJson) ? "{}" : request.SpecificationsJson,
                 Photos = photoUrls,
                 VideoUrl = videoUrl,
-                Status = "Live",
-                DateLive = DateTime.UtcNow,
+                Status = "Data Entry", // goes Live only after the pipeline checks
                 PostedByUserId = postedByUserId,
+                UpdatedByUserId = postedByUserId,
             };
 
             _context.Machines.Add(machine);
@@ -231,6 +235,10 @@ namespace MachineProjectAPI.Controllers
 
             if (request.Photos != null && request.Photos.Count > 0)
             {
+                if (request.Photos.Count < MinPhotos)
+                {
+                    return BadRequest(new { message = $"Please choose at least {MinPhotos} photos." });
+                }
                 var newPhotoUrls = new List<string>();
                 foreach (var photo in request.Photos)
                 {
@@ -255,6 +263,7 @@ namespace MachineProjectAPI.Controllers
             }
 
             machine.LastModified = DateTime.UtcNow;
+            machine.UpdatedByUserId = CurrentUserId();
             await _context.SaveChangesAsync();
 
             return Ok(ToDetailDto(machine));
@@ -275,6 +284,7 @@ namespace MachineProjectAPI.Controllers
             }
 
             machine.IsActive = false;
+            machine.UpdatedByUserId = CurrentUserId();
             machine.Status = "Archived";
             machine.LastModified = DateTime.UtcNow;
             await _context.SaveChangesAsync();
@@ -287,7 +297,17 @@ namespace MachineProjectAPI.Controllers
             public string Status { get; set; } = string.Empty;
         }
 
-        private static readonly string[] AllowedStatuses = { "Draft", "Verified", "Live", "Sold", "Archived" };
+        private const int MinPhotos = 3;
+
+        private int? CurrentUserId()
+        {
+            var claim = User.FindFirst("sub") ?? User.FindFirst("nameid") ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            return claim != null && int.TryParse(claim.Value, out var uid) ? uid : null;
+        }
+
+        private static readonly string[] AllowedStatuses = {
+            "Received", "Data Entry", "Owner Contacted", "Media Ready", "Verified", "Condition Checked", "Live", "Sold", "Archived"
+        };
 
         /// <summary>
         /// Move a machine to another pipeline status (Draft, Verified, Live, Sold, Archived). Requires login.
@@ -309,7 +329,13 @@ namespace MachineProjectAPI.Controllers
                 return NotFound(new { message = "Machine not found." });
             }
 
+            if (status == "Live" && machine.Photos.Count < MinPhotos)
+            {
+                return BadRequest(new { message = $"A machine needs at least {MinPhotos} photos before it can go Live. Edit the machine and add photos first." });
+            }
+
             machine.Status = status;
+            machine.UpdatedByUserId = CurrentUserId();
             if (status == "Live" && machine.DateLive == null) machine.DateLive = DateTime.UtcNow;
             if (status == "Sold" && machine.DateSold == null) machine.DateSold = DateTime.UtcNow;
             machine.LastModified = DateTime.UtcNow;
@@ -334,6 +360,7 @@ namespace MachineProjectAPI.Controllers
             }
 
             machine.SoldByOtherBroker = true;
+            machine.UpdatedByUserId = CurrentUserId();
             machine.Status = "Archived";
             machine.DateSold = DateTime.UtcNow;
             machine.LastModified = DateTime.UtcNow;
@@ -351,11 +378,20 @@ namespace MachineProjectAPI.Controllers
         public async Task<ActionResult<List<MachineDetailDto>>> GetAllForAdmin()
         {
             var machines = await _context.Machines
+                .Include(m => m.PostedByUser)
+                .Include(m => m.UpdatedByUser)
                 .Where(m => m.IsActive)
                 .OrderByDescending(m => m.DatePosted)
                 .ToListAsync();
 
-            return Ok(machines.Select(ToDetailDto).ToList());
+            return Ok(machines.Select(m =>
+            {
+                var dto = ToDetailDto(m);
+                dto.PostedBy = m.PostedByUser?.FullName;
+                dto.UpdatedBy = m.UpdatedByUser?.FullName;
+                dto.LastModified = m.LastModified;
+                return dto;
+            }).ToList());
         }
 
         /// <summary>

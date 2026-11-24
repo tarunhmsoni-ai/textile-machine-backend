@@ -39,6 +39,10 @@ namespace MachineProjectAPI.Models
         public decimal Price { get; set; }
         public int Quantity { get; set; } = 1;
         public string Status { get; set; } = string.Empty;
+        // Staff attribution — only filled for the admin inventory, never on public pages.
+        public string? PostedBy { get; set; }
+        public string? UpdatedBy { get; set; }
+        public System.DateTime? LastModified { get; set; }
     }
 
     public class SellerDto

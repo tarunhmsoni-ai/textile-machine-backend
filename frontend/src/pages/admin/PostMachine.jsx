@@ -293,8 +293,8 @@ const PostMachine = () => {
         throw new Error('Please enter the seller name and phone number');
       }
 
-      if (uploadedPhotos.length === 0) {
-        throw new Error('Please upload at least one photo');
+      if (uploadedPhotos.length < 3) {
+        throw new Error('Please upload at least 3 photos');
       }
 
       const fd = new FormData();
@@ -380,12 +380,10 @@ const PostMachine = () => {
           {error && <div className="error-message">{error}</div>}
           {success && (
             <div className="success-message">
-              ✅ Machine posted successfully!{' '}
-              {createdId && (
-                <button type="button" className="success-message__link" onClick={() => navigate(`/machines/${createdId}`)}>
-                  View it live →
-                </button>
-              )}
+              ✅ Machine saved at the "Data Entry" step. It goes live on the website only after you move it to "Live" in Machine Inventory.{' '}
+              <button type="button" className="success-message__link" onClick={() => navigate('/admin/dashboard')}>
+                Open Machine Inventory →
+              </button>
             </div>
           )}
 
@@ -610,7 +608,7 @@ const PostMachine = () => {
           {/* Photos Upload Section */}
           <section className="form-section">
             <h2>📸 Machine Photos</h2>
-            <p className="info-text">Upload up to 5 photos (JPEG, PNG)</p>
+            <p className="info-text">Upload 3 to 5 photos (JPEG, PNG) — at least 3 are required</p>
 
             <div className="upload-box">
               <input

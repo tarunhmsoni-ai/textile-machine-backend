@@ -452,6 +452,9 @@ namespace MachineProjectAPI.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int?>("UpdatedByUserId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
@@ -475,6 +478,8 @@ namespace MachineProjectAPI.Migrations
                     b.HasIndex("Status");
 
                     b.HasIndex("Type");
+
+                    b.HasIndex("UpdatedByUserId");
 
                     b.ToTable("Machines");
                 });
@@ -720,7 +725,14 @@ namespace MachineProjectAPI.Migrations
                         .HasForeignKey("PostedByUserId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("MachineProjectAPI.Models.User", "UpdatedByUser")
+                        .WithMany()
+                        .HasForeignKey("UpdatedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("PostedByUser");
+
+                    b.Navigation("UpdatedByUser");
                 });
 
             modelBuilder.Entity("MachineProjectAPI.Models.Lead", b =>
