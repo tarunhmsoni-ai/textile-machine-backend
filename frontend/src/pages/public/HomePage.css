@@ -886,3 +886,16 @@
 .ind-footer__brand .gear-logo__wordmark {
   color: var(--text-on-dark);
 }
+
+.ind-footer__social {
+  display: block;
+  color: inherit;
+  opacity: 0.85;
+  margin: 0.25rem 0;
+  text-decoration: none;
+}
+
+.ind-footer__social:hover {
+  opacity: 1;
+  text-decoration: underline;
+}

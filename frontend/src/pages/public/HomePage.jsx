@@ -8,6 +8,7 @@ import AnimatedButton from '../../components/AnimatedButton';
 import WhatsAppIcon from '../../components/WhatsAppIcon';
 import FacebookIcon from '../../components/FacebookIcon';
 import apiClient, { resolveMediaUrl } from '../../services/apiClient';
+import { SOCIAL_LINKS } from '../../config/social';
 import { onImageError } from '../../utils/imageFallback';
 import { whatsappShareUrl, facebookShareUrl } from '../../utils/shareLinks';
 import './HomePage.css';
@@ -103,12 +104,25 @@ const HomePage = () => {
 
   const handleMachineTypeClick = (type) => navigate(`/machines?type=${type}`);
 
-  const handleNewsletterSubmit = (e) => {
+  const [subWhatsApp, setSubWhatsApp] = useState('');
+  const [newsletterError, setNewsletterError] = useState('');
+
+  const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Send newsletter subscription to backend
-    setNewsletterDone(true);
-    setEmail('');
-    setTimeout(() => setNewsletterDone(false), 4000);
+    setNewsletterError('');
+    if (!email.trim() && !subWhatsApp.trim()) {
+      setNewsletterError('Please enter your email or WhatsApp number.');
+      return;
+    }
+    try {
+      await apiClient.post('/subscribers', { email: email.trim(), whatsApp: subWhatsApp.trim() });
+      setNewsletterDone(true);
+      setEmail('');
+      setSubWhatsApp('');
+      setTimeout(() => setNewsletterDone(false), 4000);
+    } catch (err) {
+      setNewsletterError(err?.response?.data?.message || 'Could not subscribe right now. Please try again in a moment.');
+    }
   };
 
   const [contactError, setContactError] = useState('');
@@ -488,17 +502,25 @@ const HomePage = () => {
         <h2 className="ind-section-title ind-section-title--center">
           GET SPECIAL OFFERS <span className="ind-accent">IN YOUR INBOX</span>
         </h2>
-        <p className="ind-newsletter__sub">Subscribe to receive updates about new machines and listings.</p>
+        <p className="ind-newsletter__sub">
+          Get updates about new machines and listings. Share your email, your WhatsApp number, or both.
+        </p>
         {newsletterDone ? (
           <p className="ind-newsletter__success">✓ You're subscribed — thank you.</p>
         ) : (
           <form className="ind-newsletter__form" onSubmit={handleNewsletterSubmit}>
+            {newsletterError && <p className="ind-contact__error" style={{ flexBasis: '100%' }}>{newsletterError}</p>}
             <input
               type="email"
-              placeholder="Enter your email"
+              placeholder="Your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
+            />
+            <input
+              type="tel"
+              placeholder="Your WhatsApp number"
+              value={subWhatsApp}
+              onChange={(e) => setSubWhatsApp(e.target.value)}
             />
             <AnimatedButton type="submit" variant="primary" icon={null}>
               Subscribe
@@ -519,7 +541,7 @@ const HomePage = () => {
             {contactError && <p className="ind-contact__error">{contactError}</p>}
             <input type="text" name="name" placeholder="Your Name" required />
             <input type="email" name="email" placeholder="Your Email" required />
-            <input type="tel" name="phone" placeholder="Your Phone" />
+            <input type="tel" name="phone" placeholder="Your Phone" required />
             <textarea name="message" placeholder="Your Message" rows="5" required />
             <AnimatedButton type="submit" variant="primary" icon={null}>
               Send Message
@@ -560,6 +582,16 @@ const HomePage = () => {
             <h3>Contact</h3>
             <p>{whatsappContact}</p>
             <p>nikhhilkgarg@gmail.com</p>
+            {SOCIAL_LINKS.some((l) => l.url) && (
+              <>
+                <h3 style={{ marginTop: '1rem' }}>Follow Us</h3>
+                {SOCIAL_LINKS.filter((l) => l.url).map((l) => (
+                  <a key={l.name} href={l.url} target="_blank" rel="noopener noreferrer" className="ind-footer__social">
+                    {l.name}
+                  </a>
+                ))}
+              </>
+            )}
           </div>
         </div>
 

@@ -282,6 +282,42 @@ namespace MachineProjectAPI.Controllers
             return NoContent();
         }
 
+        public class MachineStatusRequest
+        {
+            public string Status { get; set; } = string.Empty;
+        }
+
+        private static readonly string[] AllowedStatuses = { "Draft", "Verified", "Live", "Sold", "Archived" };
+
+        /// <summary>
+        /// Move a machine to another pipeline status (Draft, Verified, Live, Sold, Archived). Requires login.
+        /// PUT /api/machines/{id}/status
+        /// </summary>
+        [HttpPut("{id:int}/status")]
+        [Authorize]
+        public async Task<ActionResult<MachineDetailDto>> UpdateStatus(int id, [FromBody] MachineStatusRequest request)
+        {
+            var status = AllowedStatuses.FirstOrDefault(s => string.Equals(s, request.Status?.Trim(), StringComparison.OrdinalIgnoreCase));
+            if (status == null)
+            {
+                return BadRequest(new { message = $"Status must be one of: {string.Join(", ", AllowedStatuses)}." });
+            }
+
+            var machine = await _context.Machines.FirstOrDefaultAsync(m => m.Id == id && m.IsActive);
+            if (machine == null)
+            {
+                return NotFound(new { message = "Machine not found." });
+            }
+
+            machine.Status = status;
+            if (status == "Live" && machine.DateLive == null) machine.DateLive = DateTime.UtcNow;
+            if (status == "Sold" && machine.DateSold == null) machine.DateSold = DateTime.UtcNow;
+            machine.LastModified = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return Ok(ToDetailDto(machine));
+        }
+
         /// <summary>
         /// Mark a machine as sold by another broker (not through us) — feeds the
         /// "Machines sold by other broker" KPI. Requires login.

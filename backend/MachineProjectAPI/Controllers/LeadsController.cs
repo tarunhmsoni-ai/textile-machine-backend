@@ -12,10 +12,12 @@ namespace MachineProjectAPI.Controllers
     public class LeadsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly MachineProjectAPI.Services.IEmailService _email;
 
-        public LeadsController(ApplicationDbContext context)
+        public LeadsController(ApplicationDbContext context, MachineProjectAPI.Services.IEmailService email)
         {
             _context = context;
+            _email = email;
         }
 
         // Per the client's access control: staff can enter and work a lead up to
@@ -134,9 +136,10 @@ namespace MachineProjectAPI.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> CreatePublicLead([FromBody] PublicLeadRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Phone))
+            if (string.IsNullOrWhiteSpace(request.Name)
+                || (string.IsNullOrWhiteSpace(request.Phone) && string.IsNullOrWhiteSpace(request.Email)))
             {
-                return BadRequest(new { message = "Name and phone are required." });
+                return BadRequest(new { message = "Please enter your name and a phone number or email so we can reach you." });
             }
 
             Machine? machine = null;
@@ -169,6 +172,21 @@ namespace MachineProjectAPI.Controllers
             }
 
             await _context.SaveChangesAsync();
+
+            var nl = Environment.NewLine;
+            var details = new[]
+            {
+                $"Name: {request.Name}",
+                $"Phone: {request.Phone}",
+                $"Email: {(string.IsNullOrWhiteSpace(request.Email) ? "-" : request.Email)}",
+                $"About: {lead.SourceDetails}",
+                "",
+                "Message:",
+                string.IsNullOrWhiteSpace(request.Message) ? "-" : request.Message,
+                "",
+                "This enquiry is also saved in the admin panel under Leads & Pipeline.",
+            };
+            await _email.SendToOwnerAsync($"New website enquiry from {request.Name}", string.Join(nl, details));
 
             return Ok(new { message = "Thanks — we've received your enquiry and will be in touch shortly." });
         }
